@@ -5,8 +5,10 @@ const path = require("path")
 
 // Import routes
 const authRoutes = require("./src/routes/authRoutes")
+const userRoutes = require("./src/routes/userRoutes")
 
 // Middlewares
+const verifyToken = require("./src/middlewares/checkTokenMiddleware")
 
 // Config
 const PORT = 3000
@@ -29,6 +31,7 @@ app.get("/", (req, res) => {
 
 // Use routes
 app.use("/auth", authRoutes)
+app.use("/user", verifyToken, userRoutes)
 
 
 // Start server

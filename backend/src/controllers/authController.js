@@ -3,6 +3,7 @@ const User = require("../models/User")
 
 // Helpers
 const createUserToken = require("../helpers/createUserToken")
+const encryptPassword = require("../helpers/encryptPassword")
 
 exports.register = async (req, res) => {
   const { name, email, password, confirm_password } = req.body
@@ -20,8 +21,7 @@ exports.register = async (req, res) => {
       return res.json({ error: "As senhas não conferem!" })
 
     // Encrypt password
-    const salt = await bcrypt.genSalt(12)
-    const passwordHash = await bcrypt.hash(password, salt)
+    const passwordHash = await encryptPassword(password)
 
     const data = {
       name,
