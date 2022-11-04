@@ -4,6 +4,7 @@ const cors = require("cors")
 const path = require("path")
 
 // Import routes
+const authRoutes = require("./src/routes/authRoutes")
 
 // Middlewares
 
@@ -15,6 +16,11 @@ app.use(express.urlencoded({ extended: true }))
 app.use(express.json())
 
 // Connection with mongodb
+const db = require("./src/config/db")
+db.once("open", () => {
+  console.log("Connected on mongodb")
+  app.emit("logged")
+})
 
 // home route 
 app.get("/", (req, res) => {
@@ -22,8 +28,12 @@ app.get("/", (req, res) => {
 })
 
 // Use routes
+app.use("/auth", authRoutes)
+
 
 // Start server
-app.listen(PORT, () => {
-  console.log("Listening on port " + PORT)
+app.on("logged", () => {
+  app.listen(PORT, () => {
+    console.log("Listening on port " + PORT)
+  })
 })
