@@ -6,6 +6,7 @@ const path = require("path")
 // Import routes
 const authRoutes = require("./src/routes/authRoutes")
 const userRoutes = require("./src/routes/userRoutes")
+const partyRoutes = require("./src/routes/partyRoutes")
 
 // Middlewares
 const verifyToken = require("./src/middlewares/checkTokenMiddleware")
@@ -32,6 +33,7 @@ app.get("/", (req, res) => {
 // Use routes
 app.use("/auth", authRoutes)
 app.use("/user", verifyToken, userRoutes)
+app.use("/party", partyRoutes)
 
 
 // Start server
