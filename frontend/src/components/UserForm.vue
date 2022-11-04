@@ -57,6 +57,7 @@ export default {
   methods: {
     handleForm() {
       if (this.page == "register") this.register();
+      if (this.page == "login") this.login();
     },
     async register() {
       this.validateRegister();
@@ -96,7 +97,52 @@ export default {
         });
 
         // Redirect to dashboard page
-        // this.$router.push("/dashboard");
+        this.$router.push("/dashboard");
+      } catch (err) {
+        console.log(err);
+        this.msg = "Erro no servidor, tente mais tarde!"
+        this.msgClass = "error"
+      }
+    },
+    async login() {
+      this.validateLogin();
+
+      if(this.error) {
+        this.msg = this.error;
+        this.msgClass = "error";
+        this.error = null;
+        return;
+      }
+
+      const dataJson = JSON.stringify(this.formData);
+      try {
+        const req = await fetch("http://localhost:3000/auth/login", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: dataJson,
+        });
+        const res = await req.json();
+
+        if (res.error) {
+          this.msg = res.error;
+          this.msgClass = "error";
+          this.removeMsg();
+          return;
+        }
+
+        this.msg = res.msg;
+        this.msgClass = "success";
+
+        // Emit event to save user data in storage
+        this.$store.commit("authenticate", {
+          token: res.token,
+          user_id: res.user_id,
+        });
+
+        // Redirect to dashboard page
+        this.$router.push("/dashboard");
       } catch (err) {
         console.log(err);
         this.msg = "Erro no servidor, tente mais tarde!"
@@ -116,6 +162,15 @@ export default {
         password: this.password,
         confirm_password: this.confirm_password,
       };
+    },
+    validateLogin(){
+      if (!this.email || !this.password)
+        return (this.error = "Preencha todos os campos para continuar.");
+
+      this.formData = {
+        email: this.email,
+        password: this.password,
+      }
     },
     removeMsg() {
       setTimeout(() => {

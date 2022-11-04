@@ -6,6 +6,8 @@
     <h2 class="c-header_title">Party Time</h2>
     <div class="c-header_links">
       <router-link to="/">Home</router-link>
+      <router-link to="/dashboard" v-show="authenticated">Dashboard</router-link>
+      <router-link to="/login" v-show="!authenticated">Entrar</router-link>
       <router-link to="/register" v-show="!authenticated">Cadastrar</router-link>
       <button @click="logout" v-show="authenticated">Logout</button>
     </div>
