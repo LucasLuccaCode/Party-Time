@@ -2,7 +2,7 @@
   <div class="c-dashboard">
     <div class="c-dashboard__title">
       <h1>Gerencie seus eventos</h1>
-      <router-link class="btn" to="/">Cadastrar Festa</router-link>
+      <router-link class="btn" to="/newparty">Cadastrar Festa</router-link>
     </div>
     <div class="c-dashboard__table" v-if="parties.length">
       <DataTable :parties="parties" />
@@ -10,7 +10,7 @@
     <div class="c-dashboard__empty" v-else>
       <p>
         Você ainda não tem festas cadastradas,
-        <router-link to="/">clique aqui para cadastrar uma</router-link>
+        <router-link to="/newparty">clique aqui para cadastrar uma</router-link>
       </p>
     </div>
   </div>
@@ -36,7 +36,6 @@ export default {
         },
       });
       const res = await req.json();
-      console.log(res);
       this.parties = res.parties;
     },
   },

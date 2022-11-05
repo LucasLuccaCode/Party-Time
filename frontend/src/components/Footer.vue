@@ -1,6 +1,6 @@
 <template>
   <footer class="c-footer">
-    Desenvolvido por &copy; MrRobot
+    Desenvolvido por MrRobot &copy;
   </footer>
 </template>
 
@@ -13,7 +13,7 @@ export default {
 <style scoped>
   .c-footer {
     text-align: center;
-    font-size: .8rem;
     color: #babac0;
+    font-size: .8rem;
   }
 </style>

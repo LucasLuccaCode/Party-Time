@@ -34,6 +34,22 @@ const routes = [
       requireAuth: true
     }
   },
+  {
+    path: "/newparty",
+    name: "NewParty",
+    component: () => import("../views/NewParty.vue"),
+    meta: {
+      requireAuth: true
+    }
+  },
+  {
+    path: "/editparty/:id",
+    name: "EditParty",
+    component: () => import("../views/EditParty.vue"),
+    meta: {
+      requireAuth: true
+    }
+  }
 ]
 
 const router = createRouter({

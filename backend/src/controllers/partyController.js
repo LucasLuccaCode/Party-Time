@@ -2,10 +2,8 @@ const Party = require("../models/Party")
 const getUserByToken = require("../helpers/getUserByToken")
 
 exports.register = async (req, res) => {
-  const { title, description, party_date, privacy, user_id: reqId, user_name } = req.body
-
-  let photos = []
-  if (req.files) photos = req.files.photos
+  const { title, description, party_date, privacy } = req.body
+  let photos = req.files?.photos ? req.files.photos : []
 
   if (photos.length) photos = photos.map(file => file.filename)
 
@@ -15,11 +13,8 @@ exports.register = async (req, res) => {
       .json({ error: "Preencha pelo menos os campos: titulo, descrição e data." })
 
   const token = req.header("auth-token")
-  const { _id } = await getUserByToken(token)
-  const user_id = _id.toString()
-
-  // Check ids match
-  if (reqId !== user_id) return res.status(401).json({ error: "Acesso negado!" })
+  const user = await getUserByToken(token)
+  const user_id = user._id.toString()
 
   const data = {
     title,
@@ -28,7 +23,7 @@ exports.register = async (req, res) => {
     photos,
     privacy,
     user_id,
-    user_name
+    user_name: user.name
   }
 
   try {
@@ -40,7 +35,7 @@ exports.register = async (req, res) => {
     })
   } catch (err) {
     console.log(err)
-    res.status(400).json({ error: "Erro ao tentar criar evento." })
+    res.status(400).json({ error: "Erro ao tentar criar evento, tente mais tarde." })
   }
 }
 
@@ -59,11 +54,11 @@ exports.allParties = async (req, res) => {
 }
 
 exports.userParties = async (req, res) => {
-  try {
-    const token = req.header("auth-token")
-    const { _id } = await getUserByToken(token)
-    const user_id = _id.toString()
+  const token = req.header("auth-token")
+  const { _id } = await getUserByToken(token)
+  const user_id = _id.toString()
 
+  try {
     const parties = await Party.find({ user_id }).sort([['_id', -1]])
 
     res.json({
@@ -72,7 +67,7 @@ exports.userParties = async (req, res) => {
     })
   } catch (err) {
     console.log(err)
-    res.status(401).json({ error: "Acesso negado!" })
+    res.status(400).json({ error: "Erro ao buscar festas, tente mais tarde." })
   }
 }
 
@@ -100,13 +95,13 @@ exports.party = async (req, res) => {
 }
 
 exports.delete = async (req, res) => {
-  try {
-    const token = req.header("auth-token")
-    const { _id } = await getUserByToken(token)
-    const user_id = _id.toString()
+  const token = req.header("auth-token")
+  const { _id } = await getUserByToken(token)
+  const user_id = _id.toString()
 
-    const partyId = req.params.id
-    const out = await Party.deleteOne({ _id: partyId, user_id })
+  const partyId = req.params.id
+  try {
+    await Party.deleteOne({ _id: partyId, user_id })
 
     res.json({
       error: null,
@@ -114,15 +109,14 @@ exports.delete = async (req, res) => {
     })
   } catch (err) {
     console.log(err)
-    res.status(401).json({ error: "Acesso negado!" })
+    res.status(400).json({ error: "Erro ao tentar deletar evento, tente mais tarde." })
   }
 }
 
 exports.update = async (req, res) => {
   const { title, description, party_date, privacy, party_id, user_id: reqId } = req.body
 
-  let photos = []
-  if (req.files) photos = req.files.photos
+  let photos = req.files?.photos ? req.files.photos : []
 
   // Check empty fields
   if (title === "null" || description === "null" || party_date === "null")
@@ -137,32 +131,27 @@ exports.update = async (req, res) => {
   }
   if (photos && photos.length) updateData.photos = photos.map(file => file.filename)
 
+  const token = req.header("auth-token")
+  const { _id } = await getUserByToken(token)
+  const user_id = _id.toString()
+
+  // Check ids match
+  if (reqId !== user_id) return res.status(401).json({ error: "Acesso negado!" })
+
   try {
-    const token = req.header("auth-token")
-    const { _id } = await getUserByToken(token)
-    const user_id = _id.toString()
+    const party = await Party.findOneAndUpdate(
+      { _id: party_id, user_id },
+      { $set: updateData },
+      { new: true }
+    )
 
-    // Check ids match
-    if (reqId !== user_id) return res.status(401).json({ error: "Acesso negado!" })
-
-    try {
-      const party = await Party.findOneAndUpdate(
-        { _id: party_id, user_id },
-        { $set: updateData },
-        { new: true }
-      )
-
-      res.json({
-        error: null,
-        msg: "Festa atualizada com sucesso!",
-        party
-      })
-    } catch (err) {
-      console.log(err)
-      res.json({ error: "Ocorreu um erro ao tentar atualizar dados do evento." })
-    }
+    res.json({
+      error: null,
+      msg: "Festa atualizada com sucesso!",
+      party
+    })
   } catch (err) {
     console.log(err)
-    res.status(400).json({ error: "Acesso negado." })
+    res.status(400).json({ error: "Erro ao tentar atualizar dados do evento, tente mais tarde." })
   }
 }

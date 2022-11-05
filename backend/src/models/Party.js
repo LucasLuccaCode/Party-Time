@@ -31,8 +31,4 @@ const partySchema = new mongoose.Schema({
 
 partySchema.index({ user_id: 1 })
 
-partySchema.pre("save", function(){
-  if(this.photos.length) this.photos = this.photos.map( url => process.env.APP_URL+"/photos/"+url)
-})
-
 module.exports = mongoose.model("Party", partySchema)
