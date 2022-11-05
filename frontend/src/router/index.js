@@ -49,6 +49,14 @@ const routes = [
     meta: {
       requireAuth: true
     }
+  },
+  {
+    path: "/party/:id",
+    name: "Party",
+    component: () => import("../views/Party.vue"),
+    meta: {
+      requireAuth: false
+    }
   }
 ]
 
