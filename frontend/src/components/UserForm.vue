@@ -58,6 +58,7 @@ export default {
     handleForm() {
       if (this.page == "register") this.register();
       if (this.page == "login") this.login();
+      if (this.page == "profile") this.update();
     },
     async register() {
       this.validateRegister();
@@ -83,7 +84,7 @@ export default {
         if (res.error) {
           this.msg = res.error;
           this.msgClass = "error";
-          this.removeMsg();
+          this.cleanMessage();
           return;
         }
 
@@ -100,14 +101,14 @@ export default {
         this.$router.push("/dashboard");
       } catch (err) {
         console.log(err);
-        this.msg = "Erro no servidor, tente mais tarde!"
-        this.msgClass = "error"
+        this.msg = "Erro no servidor, tente mais tarde!";
+        this.msgClass = "error";
       }
     },
     async login() {
       this.validateLogin();
 
-      if(this.error) {
+      if (this.error) {
         this.msg = this.error;
         this.msgClass = "error";
         this.error = null;
@@ -128,7 +129,7 @@ export default {
         if (res.error) {
           this.msg = res.error;
           this.msgClass = "error";
-          this.removeMsg();
+          this.cleanMessage();
           return;
         }
 
@@ -145,8 +146,49 @@ export default {
         this.$router.push("/dashboard");
       } catch (err) {
         console.log(err);
-        this.msg = "Erro no servidor, tente mais tarde!"
-        this.msgClass = "error"
+        this.msg = "Erro no servidor, tente mais tarde!";
+        this.msgClass = "error";
+      }
+    },
+    async update() {
+      this.validateUpdate();
+
+      if (this.error) {
+        this.msg = this.error;
+        this.msgClass = "error";
+        this.error = null;
+        return;
+      }
+
+      const dataJson = JSON.stringify(this.formData);
+
+      const token = this.$store.getters.token;
+      try {
+        const req = await fetch("http://localhost:3000/user", {
+          method: "PATCH",
+          headers: {
+            "Content-type": "application/json",
+            "auth-token": token,
+          },
+          body: dataJson,
+        });
+        const res = await req.json();
+
+        this.msg = res.error ? res.error : res.msg;
+        this.msgClass = res.error ? "error" : "success";
+        this.cleanMessage();
+
+        if (!res.error) {
+          // Emit event to save user data in storage
+          this.$store.commit("authenticate", {
+            token: res.token,
+            user_id: res.user_id,
+          });
+        }
+      } catch (err) {
+        console.log(err);
+        this.msg = "Erro no servidor, tente mais tarde!";
+        this.msgClass = "error";
       }
     },
     validateRegister() {
@@ -163,16 +205,32 @@ export default {
         confirm_password: this.confirm_password,
       };
     },
-    validateLogin(){
+    validateLogin() {
       if (!this.email || !this.password)
         return (this.error = "Preencha todos os campos para continuar.");
 
       this.formData = {
         email: this.email,
         password: this.password,
-      }
+      };
     },
-    removeMsg() {
+    validateUpdate() {
+      if (!this.name || !this.email)
+        return (this.error =
+          "Os campos Nome e Email não podem ficar vazios, preencha por favor..");
+
+      if (this.password !== this.confirm_password)
+        return (this.error = "As senhas não conferem.");
+
+      this.formData = {
+        id: this.id,
+        name: this.name,
+        email: this.email,
+        password: this.password,
+        confirm_password: this.confirm_password,
+      };
+    },
+    cleanMessage() {
       setTimeout(() => {
         this.msg = null;
         this.msgClass = null;

@@ -26,14 +26,14 @@ exports.getUser = async (req, res) => {
 }
 
 exports.updateUser = async (req, res) => {
-  const { name, email, password, confirm_password } = req.body
+  const { id: reqId, name, email, password, confirm_password } = req.body
   try {
     const token = req.header("auth-token")
     const user = await getUserByToken(token)
     const user_id = user._id.toString()
 
     // Check if ids match
-    if (user_id !== req.body.id) return res.status(401).json({ error: "Acesso negado!" })
+    if (user_id !== reqId) return res.status(401).json({ error: "Acesso negado!" })
 
     // Check exists email
     const existsEmail = await User.findOne({ email })
@@ -64,7 +64,6 @@ exports.updateUser = async (req, res) => {
     res.json({
       error: null,
       msg: "Usuário atualizado!",
-      user: newUser,
       token: newToken,
       user_id: newUser._id
     })
