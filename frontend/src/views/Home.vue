@@ -26,7 +26,7 @@
       </div>
     </div>
     <p class="not-parties" v-show="!parties.length">
-      Nenhuma festa cadastrada ainda...
+      Nenhuma festa publicada ainda...
     </p>
   </div>
 </template>

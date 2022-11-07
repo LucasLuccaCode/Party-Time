@@ -1,6 +1,6 @@
 <template>
   <footer class="c-footer">
-    Desenvolvido por MrRobot &copy;
+    by MrRobot &copy;
   </footer>
 </template>
 
