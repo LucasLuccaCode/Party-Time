@@ -1,66 +1,78 @@
 <template>
   <div class="c-comments">
-    <ul class="c-comments__content">
-      <a 
-        v-show="currentsComment.length < comments.length" 
-        class="more-comments" 
-        @click.prevent="seeMoreComments" 
-        href="#">
-        Ver comentários anteriores
-      </a>
-      <li class="c-comment__card" v-for="(comment, index) in currentsComment" :key="index">
+    <ul class="c-comments__content" v-show="comments.length">
+      <div
+        class="c-comments__more_comments"
+        v-show="currentsComment.length < comments.length"
+      >
+        <a @click.prevent="seeMoreComments"> Ver comentários anteriores</a>
+        <p>{{ currentsComment.length }} / {{ comments.length }}</p>
+      </div>
+      <li
+        class="c-comment__card"
+        v-for="(comment, index) in currentsComment"
+        :key="index"
+      >
         <div class="c-comment__card__image"></div>
         <div class="c-comment__card__body">
           <div class="c-comment__card__content">
-            <a>{{comment.name}}</a>
-            <p>{{comment.message}}</p>
+            <a>{{ comment.name }}</a>
+            <p>{{ comment.message }}</p>
           </div>
           <div class="c-comment__card__actions">
             <a href="#">Curtir</a>
             <a href="#">Responder</a>
-            <a href="#" onclick="comments.delete(${i})">Excluir</a>
-            <span>{{comment.date}} h</span>
+            <a href="#" @click.prevent="this.$parent.deleteComment(index)">Excluir</a>
+            <span>{{ comment.date }} h</span>
           </div>
         </div>
       </li>
-      <form @submit.prevent="addComment" class="c-comments__form">
-        <div class="c-comments__form__profile"></div>
-        <div class="c-comments__form__input">
-          <input type="text" name="comment" v-model="comment" id="comment" placeholder="Escreva um comentário">
-        </div>
-      </form>
     </ul>
+    <form @submit.prevent="addComment" class="c-comments__form">
+      <div class="c-comments__form__profile"></div>
+      <div class="c-comments__form__input">
+        <input
+          type="text"
+          name="comment"
+          v-model="comment"
+          id="comment"
+          placeholder="Escreva um comentário"
+        />
+      </div>
+    </form>
   </div>
 </template>
 
 <script>
 export default {
   name: "Comment",
-  data(){
+  data() {
     return {
-      comment: null
-    }
+      comment: null,
+    };
   },
   props: ["comments", "state"],
   computed: {
-    currentsComment(){
-      const { page } = this.state
-      return this.comments.slice(-page)
-    }
+    currentsComment() {
+      const { page } = this.state;
+      console.log(page);
+      return this.comments.slice(-page);
+    },
   },
   methods: {
-    addComment(){
+    addComment() {
       this.$parent.updateComments({
         name: "Mr Robot",
         message: this.comment,
-        date: "13"
-      })
-      this.comment = null
+        date: "13",
+      });
+      this.comment = null;
     },
-    seeMoreComments(){
-      this.$parent.setPage(this.state.page + 2)
-    }
-  }
+    seeMoreComments() {
+      const { page, perPage } = this.state;
+      this.$parent.setPage(page + perPage);
+    },
+  },
 };
 </script>
 
@@ -90,6 +102,18 @@ export default {
 .c-comments__content::-webkit-scrollbar-thumb {
   border-radius: 20px;
   background-color: rgba(255, 255, 255, 0.1);
+}
+
+.c-comments__more_comments {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.c-comments__more_comments a,
+.c-comments__more_comments p {
+  font-size: 0.7rem;
+  color: #babac0;
 }
 
 .c-comment__card {
@@ -135,7 +159,7 @@ export default {
   color: #efefff;
   margin-top: 2px;
   /* font-weight: bold; */
-  line-height: .75rem;
+  line-height: 0.75rem;
 }
 
 .c-comment__card__actions {
@@ -147,29 +171,26 @@ export default {
 
 .c-comment__card__actions a {
   color: #efefff;
-  font-size: .65rem;
+  font-size: 0.65rem;
   /* text-decoration: none; */
 }
 
 .c-comment__card__actions span {
   color: #aaaab0;
-  font-size: .65rem;
+  font-size: 0.65rem;
 }
 
 .c-comment__card__actions a:hover {
   text-decoration: underline;
 }
 
-.more-comments {
-  margin-top: .5rem;
-  font-size: .7rem;
-}
-
 .c-comments__form {
   display: flex;
   align-items: center;
   width: 100%;
-  padding: .4rem 0;
+  padding: 0 0.4rem;
+  padding-top: 0.4rem;
+  padding-bottom: 0.6rem;
 }
 
 .c-comments__form__profile {
@@ -183,15 +204,15 @@ export default {
 
 .c-comments__form__input {
   flex: 1;
-  margin-left: .5rem;
+  margin-left: 0.5rem;
 }
 
 .c-comments__form__input input {
   width: 100%;
   height: 1.6rem;
   border-radius: 50px;
-  padding: 0 .5rem;
-  font-size: .7rem;
+  padding: 0 0.5rem;
+  font-size: 0.7rem;
   color: #efefff;
   background: rgba(255, 255, 255, 0.1);
 }

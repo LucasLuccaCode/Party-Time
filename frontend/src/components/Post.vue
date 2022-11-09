@@ -4,11 +4,6 @@
     <PostImage :party="party" v-show="party.photos.length" />
     <Body :totalComments="party.comments.length" :likes="state.likes" />
     <Comment :comments="party.comments" :state="state" />
-    <PageButtons
-      v-show="party.comments.length"
-      :state="state"
-      :key="controllerButtons"
-    />
   </li>
 </template>
 
@@ -17,20 +12,16 @@ import Header from "./publication/Header";
 import PostImage from "./publication/PostImage";
 import Body from "./publication/Body";
 import Comment from "./publication/Comment";
-import PageButtons from "./publication/PageButtons";
 
 export default {
   name: "Post",
   data() {
     return {
       state: {
-        page: 1,
+        page: 2,
         perPage: 2,
-        totalPages: 0,
-        nButtons: 0,
-        likes: 88,
+        likes: 18,
       },
-      controllerButtons: 0,
     };
   },
   props: ["party"],
@@ -43,29 +34,17 @@ export default {
     },
     updateComments(comment) {
       this.party.comments.push(comment);
-
-      const totalPages = Math.ceil(this.party.comments.length / this.state.perPage);
-      this.state.totalPages = totalPages
-      this.state.page = totalPages
-      this.state.nButtons = totalPages < 5 ? totalPages : 5;
-      
-      this.controllerButtons++;
     },
+    deleteComment(index){
+      this.party.comments.splice(index, 1)
+    }
   },
   components: {
     Header,
     PostImage,
     Body,
     Comment,
-    PageButtons,
-  },
-  mounted() {
-    const totalPages = Math.ceil(this.party.comments.length / this.state.perPage);
-    this.state.totalPages = totalPages
-    this.state.page = totalPages
-    this.state.nButtons = totalPages < 5 ? totalPages : 5;
-    this.controllerButtons++;
-  },
+  }
 };
 </script>
 
@@ -74,10 +53,10 @@ export default {
   --_padding-h: 0.8rem;
   width: 80%;
   margin: 0 auto;
-  margin-top: .2rem;
-  margin-bottom: .8rem;
+  margin-top: 0.2rem;
+  margin-bottom: 0.8rem;
   max-width: 460px;
-  background: rgba(255, 255, 255, .08);
+  background: rgba(255, 255, 255, 0.08);
   border-radius: 12px;
   box-shadow: 0 2px 2px 1px rgba(0, 0, 0, 0.05);
   list-style: none;
