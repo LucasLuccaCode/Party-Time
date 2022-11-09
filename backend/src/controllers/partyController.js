@@ -23,7 +23,8 @@ exports.register = async (req, res) => {
     photos,
     privacy,
     user_id,
-    user_name: user.name
+    user_name: user.name,
+    comments: []
   }
 
   try {

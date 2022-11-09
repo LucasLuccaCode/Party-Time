@@ -7,10 +7,10 @@
     <div class="c-header_links">
       <router-link to="/">Home</router-link>
       <router-link to="/dashboard" v-show="authenticated">Dashboard</router-link>
-      <router-link to="/login" v-show="!authenticated">Entrar</router-link>
-      <router-link to="/register" v-show="!authenticated">Cadastrar</router-link>
-      <router-link to="/profile" v-show="authenticated">Perfil</router-link>
-      <button @click="logout" v-show="authenticated">Logout</button>
+      <router-link to="/login" v-show="!authenticated">Login</router-link>
+      <router-link to="/register" v-show="!authenticated">Register</router-link>
+      <router-link to="/profile" v-show="authenticated">Profile</router-link>
+      <a @click.prevent="logout" v-show="authenticated">Logout</a>
     </div>
   </div>
 </template>
@@ -34,7 +34,8 @@ export default {
 
 <style scoped>
 .c-header {
-  background: var(--secondary-color);
+  /* background: var(--secondary-color); */
+  background-image: linear-gradient(to right, #00b1ff, cyan);
 }
 
 .c-header {
@@ -65,19 +66,23 @@ export default {
   display: flex;
   align-items: center;
   justify-content: flex-end;
-  gap: 1rem;
+  gap: .7rem;
 }
 
-.c-header button {
-  font-size: 0.7rem;
-  color: #fff;
-  padding: 0.3rem;
-  background-color: rgba(255, 255, 255, 0.12);
-  border-radius: 0.2rem;
+.c-header_links a {
+  color: #babac0;
+  font-size: 0.6rem;
+  font-weight: 550;
+  padding: 0.3rem .5rem;
+  border-radius: 50px;
+  background-color: rgba(255, 255, 255, .1);
+  transition: .3s;
 }
 
-.c-header button:hover {
-  color: #efefff;
+.c-header_links a.router-link-active,
+.c-header_links a:hover {
+  color: #4a4a50;
   background-color: var(--details-color);
+  text-decoration: none;
 }
 </style>

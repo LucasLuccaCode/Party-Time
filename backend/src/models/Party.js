@@ -22,10 +22,16 @@ const partySchema = new mongoose.Schema({
     type: Boolean
   },
   user_id: {
-    type: mongoose.ObjectId
+    type: mongoose.ObjectId,
+    required: true
   },
   user_name: {
-    type: String
+    type: String,
+    required: true
+  },
+  comments: {
+    type: Array,
+    required: true
   }
 })
 

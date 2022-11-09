@@ -54,6 +54,7 @@ html {
 }
 
 a {
+  cursor: pointer;
   font-size: 0.8rem;
   color: #9a9aa0;
   text-decoration: none;
