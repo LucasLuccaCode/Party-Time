@@ -16,19 +16,19 @@
         <div class="c-comment__card__image"></div>
         <div class="c-comment__card__body">
           <div class="c-comment__card__content">
-            <a>{{ comment.name }}</a>
-            <p>{{ comment.message }}</p>
+            <a>{{ comment.username }}</a>
+            <p>{{ comment.comment }}</p>
           </div>
           <div class="c-comment__card__actions">
             <a href="#">Curtir</a>
             <a href="#">Responder</a>
-            <a href="#" @click.prevent="this.$parent.deleteComment(index)">Excluir</a>
+            <a v-show="user_id == comment.user_id" href="#" @click.prevent="handleDeleteComment(comment._id)">Excluir</a>
             <span>{{ comment.date }} h</span>
           </div>
         </div>
       </li>
     </ul>
-    <form @submit.prevent="addComment" class="c-comments__form">
+    <form @submit.prevent="handleInsertComment" class="c-comments__form">
       <div class="c-comments__form__profile"></div>
       <div class="c-comments__form__input">
         <input
@@ -48,6 +48,7 @@ export default {
   name: "Comment",
   data() {
     return {
+      user_id: this.$store.getters.user_id || null,
       comment: null,
     };
   },
@@ -55,17 +56,15 @@ export default {
   computed: {
     currentsComment() {
       const { page } = this.state;
-      console.log(page);
       return this.comments.slice(-page);
     },
   },
   methods: {
-    addComment() {
-      this.$parent.updateComments({
-        name: "Mr Robot",
-        message: this.comment,
-        date: "13",
-      });
+    handleDeleteComment(commentId){
+      this.$parent.deleteComment(commentId)
+    },
+    handleInsertComment() {
+      this.$parent.insertComment(this.comment);
       this.comment = null;
     },
     seeMoreComments() {

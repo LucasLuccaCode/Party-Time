@@ -3,7 +3,7 @@
     <Header :party="party" />
     <PostImage :party="party" v-show="party.photos.length" />
     <Body :totalComments="party.comments.length" :likes="state.likes" />
-    <Comment :comments="party.comments" :state="state" />
+    <Comments :comments="party.comments" :state="state" />
   </li>
 </template>
 
@@ -11,12 +11,13 @@
 import Header from "./publication/Header";
 import PostImage from "./publication/PostImage";
 import Body from "./publication/Body";
-import Comment from "./publication/Comment";
+import Comments from "./publication/Comments";
 
 export default {
   name: "Post",
   data() {
     return {
+      partyId: this.party._id || null,
       state: {
         page: 2,
         perPage: 2,
@@ -32,19 +33,61 @@ export default {
     addLike() {
       this.state.likes++;
     },
-    updateComments(comment) {
-      this.party.comments.push(comment);
+    async insertComment(comment) {
+      const token = this.$store.getters.token;
+
+      const CommentData = { 
+        party_id: this.partyId,
+        comment: comment 
+      }
+      const commentJson = JSON.stringify(CommentData);
+
+      try {
+        const req = await fetch(
+          `http://localhost:3000/party/comment`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              "auth-token": token,
+            },
+            body: commentJson,
+          }
+        );
+        const res = await req.json();
+        if(!res.error) this.party.comments = res.comments
+      } catch (err) {
+        console.log(err);
+      }
     },
-    deleteComment(index){
-      this.party.comments.splice(index, 1)
-    }
+    async deleteComment(commentId) {
+      const token = this.$store.getters.token;
+
+      try {
+        const req = await fetch(
+          `http://localhost:3000/party/comment/${this.partyId}/${commentId}`,
+          {
+            method: "DELETE",
+            headers: {
+              "auth-token": token,
+            }
+          }
+        );
+
+        const res = await req.json();
+        console.log(res)
+        if(!res.error) this.party.comments = res.comments
+      } catch (err) {
+        console.log(err);
+      }
+    },
   },
   components: {
     Header,
     PostImage,
     Body,
-    Comment,
-  }
+    Comments,
+  },
 };
 </script>
 
