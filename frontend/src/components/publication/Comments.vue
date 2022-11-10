@@ -22,7 +22,13 @@
           <div class="c-comment__card__actions">
             <a href="#">Curtir</a>
             <a href="#">Responder</a>
-            <a v-show="user_id == comment.user_id" href="#" @click.prevent="handleDeleteComment(comment._id)">Excluir</a>
+            <a
+              href="#"
+              v-show="user_id == comment.user_id || user_id == partyUserId"
+              @click.prevent="handleDeleteComment(comment._id)"
+            >
+              Excluir
+            </a>
             <span>{{ comment.date }} h</span>
           </div>
         </div>
@@ -52,7 +58,7 @@ export default {
       comment: null,
     };
   },
-  props: ["comments", "state"],
+  props: ["comments", "partyUserId", "state"],
   computed: {
     currentsComment() {
       const { page } = this.state;
@@ -60,8 +66,8 @@ export default {
     },
   },
   methods: {
-    handleDeleteComment(commentId){
-      this.$parent.deleteComment(commentId)
+    handleDeleteComment(commentId) {
+      this.$parent.deleteComment(commentId);
     },
     handleInsertComment() {
       this.$parent.insertComment(this.comment);

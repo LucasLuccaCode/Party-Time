@@ -3,7 +3,7 @@
     <Header :party="party" />
     <PostImage :party="party" v-show="party.photos.length" />
     <Body :totalComments="party.comments.length" :likes="state.likes" />
-    <Comments :comments="party.comments" :state="state" />
+    <Comments :comments="party.comments" :partyUserId="party.user_id" :state="state" />
   </li>
 </template>
 
