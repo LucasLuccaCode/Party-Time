@@ -36,7 +36,8 @@ exports.createComment = async (req, res) => {
     _id: new mongoose.Types.ObjectId(),
     user_id,
     username,
-    comment
+    comment,
+    date: Date.now()
   }
 
   try {

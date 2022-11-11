@@ -25,7 +25,8 @@ exports.register = async (req, res) => {
     privacy,
     user_id,
     user_name: user.name,
-    comments: []
+    comments: [],
+    date: Date.now()
   }
 
   try {
@@ -155,5 +156,42 @@ exports.update = async (req, res) => {
   } catch (err) {
     console.log(err)
     res.status(400).json({ error: "Erro ao tentar atualizar dados do evento, tente mais tarde." })
+  }
+}
+
+exports.likeParty = async (req, res) => {
+  const partyId = req.params.id
+
+  const token = req.header("auth-token")
+  const { _id: userIdByToken } = await getUserByToken(token)
+
+  try {
+    const likedPost = await Party.findOne({ _id: partyId, likes: userIdByToken })
+
+    if (likedPost) {
+      const { likes } = await Party.findOneAndUpdate(
+        { _id: partyId, likes: userIdByToken },
+        { $pull: { likes: userIdByToken } },
+        { new: true }
+      )
+      return res.json({
+        error: null,
+        likes
+      })
+    }
+
+    const { likes } = await Party.findOneAndUpdate(
+      { _id: partyId },
+      { $push: { likes: userIdByToken } },
+      { new: true }
+    )
+
+    res.json({
+      error: null,
+      likes
+    })
+  } catch (err) {
+    console.log(err)
+    res.status(400).json({ error: "Publicação não encontrada." })
   }
 }

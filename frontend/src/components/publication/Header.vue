@@ -3,13 +3,13 @@
     <div class="c-header__title">
       <div class="c-header__profile"></div>
       <h2>
-        {{ party.user_name }} 
-        <span>{{ party.party_date }}</span>
+        {{ party.user_name }}
+        <span>{{treatDates(party.date)}}</span>
       </h2>
       <div class="c-header__options"><span>...</span></div>
     </div>
     <div class="c-header__legend">
-      <p>{{ party.title }}</p>
+      <p>{{ party.party_date }} - {{ party.title }}</p>
       <router-link :to="`/party/${party._id}`" class="c-party__more">Ver mais</router-link>
     </div>
   </div>
@@ -18,7 +18,12 @@
 <script>
 export default {
   name: "Header",
-  props: ["party"]
+  props: ["party"],
+  methods: {
+    treatDates(dateMs){
+      return this.$parent.formatDate(dateMs)
+    }
+  }
 };
 </script>
 

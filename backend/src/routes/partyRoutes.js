@@ -28,4 +28,6 @@ router.delete("/:id", verifyToken, partyController.delete)
 // Update party
 router.patch("/", verifyToken, multer(multerConfig).fields([{ name: "photos" }]), partyController.update)
 
+router.post("/likeparty/:id", verifyToken, partyController.likeParty)
+
 module.exports = router

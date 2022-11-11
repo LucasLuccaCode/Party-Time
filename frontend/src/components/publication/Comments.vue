@@ -29,7 +29,7 @@
             >
               Excluir
             </a>
-            <span>{{ comment.date }} h</span>
+            <span>{{ this.$parent.formatDate(comment.date) }}</span>
           </div>
         </div>
       </li>

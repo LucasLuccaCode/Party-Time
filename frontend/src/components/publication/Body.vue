@@ -2,17 +2,23 @@
   <div class="c-post__body">
     <div class="c-post__body__like">
       <img src="/img/like.png" alt="Like" />
-      <span class="total-likes">{{likes}}</span>
-      <a href="#" @click.prevent="this.$parent.addLike()">Curtir</a>
+      <span class="total-likes">{{party.likes.length}}</span>
+      <a href="#" @click.prevent="this.$parent.likesPost(party._id)">{{statusPostLike}}</a>
     </div>
-    <a class="total-comments">{{totalComments}} comments</a>
+    <a class="total-comments">{{party.comments.length}} comments</a>
   </div>
 </template>
 
 <script>
 export default {
   name: "Body",
-  props: ["totalComments", "likes"]
+  computed: {
+    statusPostLike(){
+      const user_id = this.$store.getters.user_id
+      return this.party.likes.includes(user_id) ? "Deslike" : "Like"
+    }
+  },
+  props: ["party"]
 };
 </script>
 
