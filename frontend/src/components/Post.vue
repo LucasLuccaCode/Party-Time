@@ -2,9 +2,10 @@
   <li class="c-post">
     <Header :party="party" />
     <PostImage :party="party" v-show="party.photos.length" />
-    <Body :party="party" />
+    <Body :party="party" :comments="comments" />
     <Comments
-      :comments="party.comments"
+      :comments="comments"
+      :partyId="partyId"
       :partyUserId="party.user_id"
       :state="state"
     />
@@ -26,6 +27,7 @@ export default {
         page: 2,
         perPage: 2,
       },
+      comments: []
     };
   },
   props: ["party"],
@@ -51,14 +53,30 @@ export default {
         console.log(err);
       }
     },
+    async getComments(partyId){
+      const token = this.$store.getters.token;
+
+      try {
+        const req = await fetch(`http://localhost:3000/party/comment/${partyId}`, {
+          method: "GET",
+          headers: {
+            "auth-token": token,
+          }
+        });
+        const res = await req.json();
+        if (!res.error) this.comments = res.comments;
+      } catch (err) {
+        console.log(err);
+      }
+    },
     async insertComment(comment) {
       const token = this.$store.getters.token;
 
-      const CommentData = {
-        party_id: this.partyId,
+      const commentData = {
+        partyId: this.partyId,
         comment: comment,
       };
-      const commentJson = JSON.stringify(CommentData);
+      const commentJson = JSON.stringify(commentData);
 
       try {
         const req = await fetch(`http://localhost:3000/party/comment`, {
@@ -70,7 +88,7 @@ export default {
           body: commentJson,
         });
         const res = await req.json();
-        if (!res.error) this.party.comments = res.comments;
+        if (!res.error) this.comments = res.comments;
       } catch (err) {
         console.log(err);
       }
@@ -90,7 +108,36 @@ export default {
         );
 
         const res = await req.json();
-        if (!res.error) this.party.comments = res.comments;
+        if (!res.error) this.comments = res.comments;
+      } catch (err) {
+        console.log(err);
+      }
+    },
+    async updateComment(commentId, newComment) {
+      const token = this.$store.getters.token;
+
+      const data = {
+        partyId: this.partyId,
+        commentId,
+        comment: newComment
+      }
+      const dataJson = JSON.stringify(data)
+
+      try {
+        const req = await fetch(
+          `http://localhost:3000/party/comment`,
+          {
+            method: "PATCH",
+            headers: {
+              "Content-Type": "application/json",
+              "auth-token": token,
+            },
+            body: dataJson
+          }
+        );
+
+        const res = await req.json();
+        if (!res.error) this.comments = res.comments;
       } catch (err) {
         console.log(err);
       }

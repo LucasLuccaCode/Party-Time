@@ -63,4 +63,10 @@ export default {
   width: 100%;
   margin: 0 auto;
 }
+
+.not-parties {
+  font-size: .9rem;
+  color: #aaaab0;
+  text-align: center;
+}
 </style>

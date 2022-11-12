@@ -5,7 +5,7 @@
       <span class="total-likes">{{party.likes.length}}</span>
       <a href="#" @click.prevent="this.$parent.likesPost(party._id)">{{statusPostLike}}</a>
     </div>
-    <a class="total-comments">{{party.comments.length}} comments</a>
+    <a class="total-comments">{{comments.length}} comments</a>
   </div>
 </template>
 
@@ -18,7 +18,7 @@ export default {
       return this.party.likes.includes(user_id) ? "Deslike" : "Like"
     }
   },
-  props: ["party"]
+  props: ["party", "comments"]
 };
 </script>
 

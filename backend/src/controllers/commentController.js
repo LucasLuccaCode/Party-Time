@@ -1,86 +1,132 @@
 const mongoose = require("mongoose")
-const Party = require("../models/Party")
+const Comment = require("../models/Comment")
 const getUserByToken = require("../helpers/getUserByToken")
 
 exports.getComments = async (req, res) => {
-  const party_id = req.params.id
-
-  const token = req.header("auth-token")
-  const { _id: reqUserId } = await getUserByToken(token)
+  const { partyId } = req.params
 
   try {
-    const party = await Party.findOne({ _id: party_id })
-    const partyId = party._id
-    const partyUserId = party.user_id
-    console.log({ partyUserId, reqUserId })
+    const token = req.header("auth-token")
+    const { _id: userIdByToken } = await getUserByToken(token)
 
-    const { comments } = await Party.findOne({ _id: partyId, user_id: reqUserId })
-
-    res.json({
-      error: null,
-      comments
-    })
+    await Comment.findOne({ partyId: partyId, partyUserId: userIdByToken })
+      .then(({ comments }) => {
+        res.json({
+          error: null,
+          comments
+        })
+      })
+      .catch(err => {
+        console.log(err)
+        res.status(400).json({ error: "Publicação não encontrada." })
+      })
   } catch (err) {
     console.log(err)
-    res.status(400).json({ error: "Publicação não encontrada." })
+    res.status(400).json({ error: "Acesso negado!" })
   }
 }
 
 exports.createComment = async (req, res) => {
-  const { party_id, comment } = req.body
-
-  const token = req.header("auth-token")
-  const { _id: user_id, name: username } = await getUserByToken(token)
-
-  const commentData = {
-    _id: new mongoose.Types.ObjectId(),
-    user_id,
-    username,
-    comment,
-    date: Date.now()
-  }
+  const { partyId, comment } = req.body
 
   try {
-    const { comments } = await Party.findOneAndUpdate(
-      { _id: party_id },
+    const token = req.header("auth-token")
+    const { _id: userIdByToken, name: username } = await getUserByToken(token)
+
+    const commentData = {
+      _id: new mongoose.Types.ObjectId(),
+      user_id: userIdByToken,
+      username,
+      comment,
+      date: Date.now()
+    }
+
+    await Comment.findOneAndUpdate(
+      { partyId: partyId },
       { $push: { comments: commentData } },
       { new: true }
     )
+      .then(({ comments }) => {
+        res.json({
+          error: null,
+          msg: "Comentário postado.",
+          comments
+        })
+      })
+      .catch(err => {
+        console.log(err)
+        res.status(400).json({ error: "Erro ao adicionar comentário, tente mais tarde." })
+      })
 
-    res.json({
-      error: null,
-      msg: "Comentário postado.",
-      comments
-    })
   } catch (err) {
     console.log(err)
-    res.status(400).json({ error: "Erro ao adicionar comentário, tente mais tarde." })
+    res.status(400).json({ error: "Acesso negado!" })
   }
 }
 
-exports.deleteComment = async (req, res) => {
-  const { party_id, comment_id } = req.params
-
-  const token = req.header("auth-token")
-  const { _id: reqUserId } = await getUserByToken(token)
-  const commentObjectId = new mongoose.Types.ObjectId(comment_id)
-
-
+exports.updateComment = async (req, res) => {
+  const { partyId, commentId, comment } = req.body
+  
   try {
-    const { comments } = await Party.findOneAndUpdate(
+    const token = req.header("auth-token")
+    const { _id: userIdByToken } = await getUserByToken(token)
+
+    const commentObjectId = new mongoose.Types.ObjectId(commentId)
+
+    await Comment.findOneAndUpdate(
       {
-        _id: party_id,
+        partyId: partyId,
+        comments: {
+          $elemMatch: {
+            _id: commentObjectId,
+            user_id: userIdByToken
+          },
+        }
+      },
+      { $set: { "comments.$.comment": comment } },
+      { new: true }
+    )
+      .then(({ comments }) => {
+        res.json({
+          error: null,
+          comments
+        })
+      })
+      .catch(err => {
+        console.log(err)
+        res.stats(401).json({ error: "Erro ao tentar atualizar comentário." })
+      })
+
+  } catch (err) {
+    console.log(err)
+    res.status(401).json({ error: "Acesso negado!" })
+  }
+
+}
+
+exports.deleteComment = async (req, res) => {
+  try {
+    const { partyId, commentId } = req.params
+
+    const token = req.header("auth-token")
+    const { _id: userIdByToken } = await getUserByToken(token)
+    const commentObjectId = new mongoose.Types.ObjectId(commentId)
+
+
+    await Comment.findOneAndUpdate(
+      {
+        partyId: partyId,
         $or: [
           {
             comments: {
               $elemMatch: {
                 _id: commentObjectId,
-                user_id: reqUserId
+                user_id: userIdByToken
               }
             }
           },
           {
-            user_id: reqUserId
+            partyUserId: userIdByToken
           }
         ]
       },
@@ -93,14 +139,20 @@ exports.deleteComment = async (req, res) => {
       },
       { new: true }
     )
+      .then(({ comments }) => {
+        res.json({
+          error: null,
+          msg: "Comentário deletado",
+          comments
+        })
+      })
+      .catch(err => {
+        console.log(err)
+        res.status(400).json({ error: "Erro ao excluir comentário, tente mais tarde." })
+      })
 
-    res.json({
-      error: null,
-      msg: "Comentário deletado",
-      comments
-    })
   } catch (err) {
     console.log(err)
-    res.status(400).json({ error: "Erro ao excluir comentário, tente mais tarde." })
+    res.status(400).json({ error: "Acesso negado!" })
   }
 }

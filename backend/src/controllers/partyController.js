@@ -1,6 +1,5 @@
 const Party = require("../models/Party")
 const getUserByToken = require("../helpers/getUserByToken")
-const mongoose = require("mongoose")
 
 exports.register = async (req, res) => {
   const { title, description, party_date, privacy } = req.body
@@ -13,32 +12,35 @@ exports.register = async (req, res) => {
     return res.status(400)
       .json({ error: "Preencha pelo menos os campos: titulo, descrição e data." })
 
-  const token = req.header("auth-token")
-  const user = await getUserByToken(token)
-  const user_id = user._id.toString()
-
-  const data = {
-    title,
-    description,
-    party_date,
-    photos,
-    privacy,
-    user_id,
-    user_name: user.name,
-    comments: [],
-    date: Date.now()
-  }
-
   try {
-    const party = await Party.create(data)
+    const token = req.header("auth-token")
+    const user = await getUserByToken(token)
 
-    res.json({
-      error: null,
-      party
-    })
+    const data = {
+      title,
+      description,
+      party_date,
+      photos,
+      privacy,
+      user_id: user._id,
+      user_name: user.name,
+      date: Date.now()
+    }
+
+    await Party.create(data)
+      .then(party => {
+        res.json({
+          error: null,
+          party
+        })
+      })
+      .catch(err => {
+        console.log(err)
+        res.status(400).json({ error: "Erro ao tentar criar evento, tente mais tarde." })
+      })
   } catch (err) {
     console.log(err)
-    res.status(400).json({ error: "Erro ao tentar criar evento, tente mais tarde." })
+    res.status(401).json({ error: "Acesso negado!" })
   }
 }
 
@@ -57,40 +59,52 @@ exports.allParties = async (req, res) => {
 }
 
 exports.userParties = async (req, res) => {
-  const token = req.header("auth-token")
-  const { _id } = await getUserByToken(token)
-  const user_id = _id.toString()
-
   try {
-    const parties = await Party.find({ user_id }).sort([['_id', -1]])
+    const token = req.header("auth-token")
+    const { _id } = await getUserByToken(token)
+    const user_id = _id.toString()
 
-    res.json({
-      error: null,
-      parties
-    })
+    await Party.find({ user_id }).sort([['_id', -1]])
+      .then(parties => {
+        res.json({
+          error: null,
+          parties
+        })
+
+      })
+      .catch(err => {
+        console.log(err)
+        res.status(400).json({ error: "Erro ao buscar festas, tente mais tarde." })
+      })
   } catch (err) {
     console.log(err)
-    res.status(400).json({ error: "Erro ao buscar festas, tente mais tarde." })
+    res.status(400).json({ error: "Acesso negado!" })
   }
 }
 
 exports.party = async (req, res) => {
-  const partyId = req.params.id
   try {
+    const partyId = req.params.id
     const party = await Party.findOne({ _id: partyId })
 
     if (party.privacy) {
       const token = req.header("auth-token")
       const { _id } = await getUserByToken(token)
-      const user_id = _id.toString()
+      const userIdByToken = _id.toString()
       const partyUserId = party.user_id.toString()
 
-      if (user_id !== partyUserId) return res.status(401).json({ error: "Acesso negado!" })
-
-      return res.json({ error: null, party })
+      if (userIdByToken !== partyUserId)
+        return res.status(401).json({ error: "Acesso negado!" })
+      return res.json({
+        error: null,
+        party
+      })
     }
 
-    res.json({ error: null, party })
+    res.json({
+      error: null,
+      party
+    })
   } catch (err) {
     console.log(err)
     res.status(400).json({ error: "Acesso negado!" })
@@ -98,21 +112,26 @@ exports.party = async (req, res) => {
 }
 
 exports.delete = async (req, res) => {
-  const token = req.header("auth-token")
-  const { _id } = await getUserByToken(token)
-  const user_id = _id.toString()
-
-  const partyId = req.params.id
   try {
-    await Party.deleteOne({ _id: partyId, user_id })
+    const token = req.header("auth-token")
+    const { _id: userIdByToken } = await getUserByToken(token)
 
-    res.json({
-      error: null,
-      msg: "Festa removida com sucesso!"
-    })
+    const partyId = req.params.id
+
+    await Party.deleteOne({ _id: partyId, user_id: userIdByToken })
+      .then(party => {
+        res.json({
+          error: null,
+          msg: "Festa removida com sucesso!"
+        })
+      })
+      .catch(err => {
+        console.log(err)
+        res.status(400).json({ error: "Erro ao tentar excluir festa, tente mais tarde." })
+      })
   } catch (err) {
     console.log(err)
-    res.status(400).json({ error: "Erro ao tentar deletar evento, tente mais tarde." })
+    res.status(401).json({ error: "Acesso negado!" })
   }
 }
 
@@ -132,43 +151,49 @@ exports.update = async (req, res) => {
     party_date,
     privacy
   }
+
   if (photos && photos.length) updateData.photos = photos.map(file => file.filename)
 
-  const token = req.header("auth-token")
-  const { _id } = await getUserByToken(token)
-  const user_id = _id.toString()
-
-  // Check ids match
-  if (reqId !== user_id) return res.status(401).json({ error: "Acesso negado!" })
-
   try {
-    const party = await Party.findOneAndUpdate(
+    const token = req.header("auth-token")
+    const { _id } = await getUserByToken(token)
+    const user_id = _id.toString()
+
+    // Check ids match
+    if (reqId !== user_id) return res.status(401).json({ error: "Acesso negado!" })
+
+    await Party.findOneAndUpdate(
       { _id: party_id, user_id },
       { $set: updateData },
       { new: true }
     )
+      .then(party => {
+        res.json({
+          error: null,
+          msg: "Festa atualizada com sucesso!",
+          party
+        })
+      })
+      .catch(err => {
+        console.log(err)
+        res.status(400).json({ error: "Erro ao tentar atualizar dados do evento, tente mais tarde." })
+      })
 
-    res.json({
-      error: null,
-      msg: "Festa atualizada com sucesso!",
-      party
-    })
   } catch (err) {
     console.log(err)
-    res.status(400).json({ error: "Erro ao tentar atualizar dados do evento, tente mais tarde." })
+    res.status(401).json({ error: "Acesso negado!" })
   }
 }
 
 exports.likeParty = async (req, res) => {
-  const partyId = req.params.id
-
-  const token = req.header("auth-token")
-  const { _id: userIdByToken } = await getUserByToken(token)
-
   try {
-    const likedPost = await Party.findOne({ _id: partyId, likes: userIdByToken })
+    const partyId = req.params.id
+    const token = req.header("auth-token")
+    const { _id: userIdByToken } = await getUserByToken(token)
 
-    if (likedPost) {
+    const likedParty = await Party.findOne({ _id: partyId, likes: userIdByToken })
+
+    if (likedParty) {
       const { likes } = await Party.findOneAndUpdate(
         { _id: partyId, likes: userIdByToken },
         { $pull: { likes: userIdByToken } },
@@ -192,6 +217,6 @@ exports.likeParty = async (req, res) => {
     })
   } catch (err) {
     console.log(err)
-    res.status(400).json({ error: "Publicação não encontrada." })
+    res.status(400).json({ error: "Acesso negado!" })
   }
 }
