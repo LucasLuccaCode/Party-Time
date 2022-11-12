@@ -1,5 +1,7 @@
 require("dotenv").config()
 
+const fs = require("fs")
+const path = require("path")
 const mongoose = require("mongoose")
 const Comment = require("./Comment")
 
@@ -40,7 +42,7 @@ const partySchema = new mongoose.Schema({
   }
 })
 
-partySchema.post("save", async function (party) {
+partySchema.post("save", async function (party, next) {
   if (party._id) {
     await Comment.create({
       partyId: party._id,
@@ -49,6 +51,28 @@ partySchema.post("save", async function (party) {
     })
       .catch(err => console.log(err))
   }
+  next()
+})
+
+partySchema.post("remove", async function (doc, next) {
+  try {
+    const partyId = this._id
+    const photos = this.photos
+
+    // Delete comments party
+    await Comment.deleteOne({ partyId: partyId })
+
+    // Delete party images
+    if (photos.length) {
+      photos.forEach(filename => {
+        fs.unlinkSync(path.resolve("tmp", "uploads", filename))
+      })
+    }
+  } catch (err) {
+    // const error = new Error("Erro ao apagar collection comentários.")
+    next(err)
+  }
+  next()
 })
 
 partySchema.index({ user_id: 1 })

@@ -115,7 +115,10 @@ export default {
     },
     seeMoreComments() {
       const { page, perPage } = this.state;
-      this.$parent.setPage(page + perPage);
+      const totalComments = this.comments.length
+      const currentComment = page + perPage
+      const newPage = currentComment > totalComments ? totalComments : currentComment
+      this.$parent.setPage(newPage);
     },
   },
   async mounted() {

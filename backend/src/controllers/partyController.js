@@ -118,7 +118,8 @@ exports.delete = async (req, res) => {
 
     const partyId = req.params.id
 
-    await Party.deleteOne({ _id: partyId, user_id: userIdByToken })
+    const party = await Party.findOne({ _id: partyId, user_id: userIdByToken })
+    await party.remove()
       .then(party => {
         res.json({
           error: null,

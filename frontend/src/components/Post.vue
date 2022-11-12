@@ -24,8 +24,8 @@ export default {
     return {
       partyId: this.party._id || null,
       state: {
-        page: 2,
-        perPage: 2,
+        page: 3,
+        perPage: 3,
       },
       comments: []
     };
