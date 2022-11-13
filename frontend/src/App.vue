@@ -66,6 +66,10 @@ a:hover {
   text-decoration: underline;
 }
 
+li {
+  list-style: none;
+}
+
 h1 {
   margin-top: 0.5rem;
   font-size: 1rem;

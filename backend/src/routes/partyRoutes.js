@@ -17,7 +17,7 @@ router.post("/", verifyToken, multer(multerConfig).fields([{ name: "photos" }]),
 router.get("/all", partyController.allParties)
 
 // Get all user parties
-router.get("/userparties", verifyToken, partyController.userParties)
+router.get("/userparties/:userId", verifyToken, partyController.userParties)
 
 // Get public / private party
 router.get("/:id", partyController.party)

@@ -6,16 +6,16 @@ const createUserToken = require("../helpers/createUserToken")
 const encryptPassword = require("../helpers/encryptPassword")
 
 exports.getUser = async (req, res) => {
-  const reqId = req.params.id
+  const reqUserId = req.params.id
   try {
     const token = req.header("auth-token")
     const { _id } = await getUserByToken(token)
-    const user_id = _id.toString()
+    const userIdByToken = _id.toString()
 
     // Check if ids match
-    if (user_id !== reqId) return res.status(401).json({ error: "Acesso negado!" })
+    // if (userIdByToken !== reqUserId) return res.status(401).json({ error: "Acesso negado!" })
 
-    const user = await User.findOne({ _id: user_id }, { password: 0 })
+    const user = await User.findOne({ _id: reqUserId }, { password: 0 })
     if (!user) return res.status(400).json({ error: "O usuário não existe!" })
 
     res.json({ error: null, user })
@@ -26,14 +26,14 @@ exports.getUser = async (req, res) => {
 }
 
 exports.updateUser = async (req, res) => {
-  const { id: reqId, name, email, password, confirm_password } = req.body
+  const { id: reqUserId, name, email, password, confirm_password } = req.body
   try {
     const token = req.header("auth-token")
     const user = await getUserByToken(token)
     const user_id = user._id.toString()
 
     // Check if ids match
-    if (user_id !== reqId) return res.status(401).json({ error: "Acesso negado!" })
+    if (user_id !== reqUserId) return res.status(401).json({ error: "Acesso negado!" })
 
     // Check exists email
     const existsEmail = await User.findOne({ email })

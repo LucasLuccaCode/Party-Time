@@ -1,11 +1,12 @@
 <template>
   <div class="c-header">
     <div class="c-header__title">
-      <div class="c-header__profile"></div>
-      <h2>
-        {{ party.user_name }}
-        <span>{{treatDates(party.date)}}</span>
-      </h2>
+      <div 
+        class="c-header__profile"
+        :style="`background-image: url(/img/user.png)`"
+      >
+      </div>
+      <router-link :to="`/profile/${party.user_id}`">{{ party.user_name }} <span>{{treatDates(party.date)}}</span></router-link>
       <div class="c-header__options"><span>...</span></div>
     </div>
     <div class="c-header__legend">
@@ -46,20 +47,22 @@ export default {
   background-size: cover;
   width: 25px;
   height: 25px;
-  background: var(--primary-color);
+  /* background: var(--primary-color); */
   border-radius: 50px;
+  overflow: hidden;
 }
 
-.c-header h2 {
+.c-header__title a {
   display: flex;
   flex-direction: column;
-  font-size: .7rem;
+  font-size: .75rem;
   color: #efefff;
   margin-left: 0.5rem;
+  font-weight: bold;
   font-family: sans-serif;
 }
 
-.c-header h2 span {
+.c-header__title a span {
   font-size: 0.55rem;
   color: #babac0;
   margin-top: 3px;

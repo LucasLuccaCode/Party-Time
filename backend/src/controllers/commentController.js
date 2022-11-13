@@ -5,25 +5,17 @@ const getUserByToken = require("../helpers/getUserByToken")
 exports.getComments = async (req, res) => {
   const { partyId } = req.params
 
-  try {
-    const token = req.header("auth-token")
-    const { _id: userIdByToken } = await getUserByToken(token)
-
-    await Comment.findOne({ partyId: partyId, partyUserId: userIdByToken })
-      .then(({ comments }) => {
-        res.json({
-          error: null,
-          comments
-        })
+  await Comment.findOne({ partyId: partyId })
+    .then(({ comments }) => {
+      res.json({
+        error: null,
+        comments
       })
-      .catch(err => {
-        console.log(err)
-        res.status(400).json({ error: "Publicação não encontrada." })
-      })
-  } catch (err) {
-    console.log(err)
-    res.status(400).json({ error: "Acesso negado!" })
-  }
+    })
+    .catch(err => {
+      console.log(err)
+      res.status(400).json({ error: "Publicação não encontrada." })
+    })
 }
 
 exports.createComment = async (req, res) => {
@@ -66,7 +58,7 @@ exports.createComment = async (req, res) => {
 
 exports.updateComment = async (req, res) => {
   const { partyId, commentId, comment } = req.body
-  
+
   try {
     const token = req.header("auth-token")
     const { _id: userIdByToken } = await getUserByToken(token)

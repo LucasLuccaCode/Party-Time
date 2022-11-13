@@ -14,16 +14,28 @@
           v-for="(comment, index) in currentsComment"
           :key="index"
         >
-          <div class="c-comment__card__image"></div>
+          <div
+            class="c-comment__card__profile"
+            :style="`background-image: url(/img/user_default.png)`"
+          ></div>
           <div class="c-comment__card__body">
             <div class="c-comment__card__content">
-              <a>{{ comment.username }}</a>
+              <router-link :to="`/profile/${comment.user_id}`">{{
+                comment.username
+              }}</router-link>
               <p>{{ comment.comment }}</p>
             </div>
-            <div class="c-comment__card__actions">
-              <a href="#">Curtir</a>
-              <a href="#">Responder</a>
-              <a href="#" @click.prevent="handleEditComment(comment._id)"
+            <div
+              class="c-comment__card__actions"
+              :class="{ hidden: !authenticated }"
+            >
+              <a href="#" @click.prevent="handleLikeComment(comment._id)"
+                >Curtir</a
+              >
+              <a
+                href="#"
+                @click.prevent="handleEditComment(comment._id)"
+                v-show="user_id == comment.user_id"
                 >Editar</a
               >
               <a
@@ -47,7 +59,10 @@
         <button @click="resetCommentEditing">X</button>
       </div>
       <form @submit.prevent="handleCommentForm" class="c-comments__form">
-        <div class="c-comments__form__profile"></div>
+        <div
+          class="c-comments__form__profile"
+          :style="`background-image: url(/img/user.png)`"
+        ></div>
         <div class="c-comments__form__input">
           <input
             type="text"
@@ -70,11 +85,12 @@ export default {
   name: "Comment",
   data() {
     return {
+      authenticated: this.$store.getters.authenticated,
       user_id: this.$store.getters.user_id || null,
       comment: null,
       commentTextEditing: null,
       commentIdEditing: null,
-      showLoader: true
+      showLoader: true,
     };
   },
   props: ["comments", "partyId", "partyUserId", "state"],
@@ -108,6 +124,9 @@ export default {
       this.comment = comment;
       this.commentTextEditing = comment;
     },
+    handleLikeComment(commentId) {
+      console.log(commentId);
+    },
     resetCommentEditing() {
       this.commentIdEditing = null;
       this.commentTextEditing = null;
@@ -115,15 +134,16 @@ export default {
     },
     seeMoreComments() {
       const { page, perPage } = this.state;
-      const totalComments = this.comments.length
-      const currentComment = page + perPage
-      const newPage = currentComment > totalComments ? totalComments : currentComment
+      const totalComments = this.comments.length;
+      const currentComment = page + perPage;
+      const newPage =
+        currentComment > totalComments ? totalComments : currentComment;
       this.$parent.setPage(newPage);
     },
   },
   async mounted() {
     await this.$parent.getComments(this.partyId);
-    this.showLoader = false
+    this.showLoader = false;
   },
   components: {
     Loader,
@@ -184,13 +204,12 @@ export default {
   color: #efefff;
 }
 
-.c-comment__card__image {
+.c-comment__card__profile {
   width: 1.2rem;
   height: 1.2rem;
   min-width: 1.2rem;
   min-height: 1.2rem;
-  /* background-image: url("/public/img/user.png"); */
-  background: var(--primary-color);
+  /* background: var(--primary-color); */
   background-position: center;
   background-size: cover;
   border-radius: 50px;
@@ -209,7 +228,7 @@ export default {
 }
 
 .c-comment__card__content a {
-  font-size: 0.7rem;
+  font-size: 0.65rem;
   color: #efefff;
   font-weight: bold;
 }
@@ -227,6 +246,11 @@ export default {
   align-items: center;
   gap: 0.7rem;
   margin-top: 0.4rem;
+}
+
+.hidden {
+  pointer-events: none;
+  opacity: 0.3;
 }
 
 .c-comment__card__actions a {
@@ -254,13 +278,13 @@ export default {
   align-items: center;
   width: 100%;
   padding: 0.3rem var(--_padding-h);
-  background: rgba(0, 0, 0, .08);
+  background: rgba(0, 0, 0, 0.08);
   border-top: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .c-comments__editing__comment img {
-  width: .9rem;
-  height: .9rem;
+  width: 0.9rem;
+  height: 0.9rem;
 }
 
 .c-comments__editing__comment p {
@@ -285,7 +309,7 @@ export default {
   font-weight: bold;
   border: 2px solid transparent;
   background: transparent;
-  transition: .3s;
+  transition: 0.3s;
 }
 
 .c-comments__editing__comment button:hover {
@@ -307,7 +331,7 @@ export default {
   background-size: cover;
   width: 25px;
   height: 25px;
-  background: var(--primary-color);
+  /* background: var(--primary-color); */
   border-radius: 50px;
 }
 

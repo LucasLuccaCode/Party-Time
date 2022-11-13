@@ -60,11 +60,27 @@ exports.allParties = async (req, res) => {
 
 exports.userParties = async (req, res) => {
   try {
+    const reqUserId = req.params.userId
     const token = req.header("auth-token")
     const { _id } = await getUserByToken(token)
-    const user_id = _id.toString()
+    const userIdByToken = _id.toString()
 
-    await Party.find({ user_id }).sort([['_id', -1]])
+    if (reqUserId === userIdByToken) {
+      await Party.find({ user_id: userIdByToken }).sort([['_id', -1]])
+        .then(parties => {
+          res.json({
+            error: null,
+            parties
+          })
+
+        })
+        .catch(err => {
+          console.log(err)
+          res.status(400).json({ error: "Erro ao buscar festas, tente mais tarde." })
+        })
+      return
+    }
+    await Party.find({ user_id: reqUserId, privacy: false }).sort([['_id', -1]])
       .then(parties => {
         res.json({
           error: null,
@@ -76,6 +92,7 @@ exports.userParties = async (req, res) => {
         console.log(err)
         res.status(400).json({ error: "Erro ao buscar festas, tente mais tarde." })
       })
+
   } catch (err) {
     console.log(err)
     res.status(400).json({ error: "Acesso negado!" })

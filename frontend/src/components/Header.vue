@@ -1,15 +1,21 @@
 <template>
   <div class="c-header">
-    <router-link to="/" id="logo-container">
-      <img src="/img/partytimelogo.png" alt="Party Time" />
-    </router-link>
-    <h2 class="c-header_title">Party Time</h2>
-    <div class="c-header_links">
+    <div class="c-header__logo">
+      <router-link to="/">
+        <img src="/img/partytimelogo.png" alt="Party Time" />
+        <h2>Party Time</h2>
+      </router-link>
+    </div>
+    <div class="c-header__links">
       <router-link to="/">Home</router-link>
-      <router-link to="/dashboard" v-show="authenticated">Dashboard</router-link>
+      <router-link to="/dashboard" v-show="authenticated"
+        >Dashboard</router-link
+      >
       <router-link to="/login" v-show="!authenticated">Login</router-link>
       <router-link to="/register" v-show="!authenticated">Register</router-link>
-      <router-link to="/profile" v-show="authenticated">Profile</router-link>
+      <router-link :to="`/profile/${userId}`" v-show="authenticated"
+        >Profile</router-link
+      >
       <a @click.prevent="logout" v-show="authenticated">Logout</a>
     </div>
   </div>
@@ -18,11 +24,16 @@
 <script>
 export default {
   name: "Navbar",
+  data() {
+    return {
+      userId: this.$store.getters.user_id || null,
+    };
+  },
   methods: {
     logout() {
       this.$store.commit("logout");
       this.$router.push("/");
-    }
+    },
   },
   computed: {
     authenticated() {
@@ -34,6 +45,8 @@ export default {
 
 <style scoped>
 .c-header {
+  position: sticky;
+  top: 0;
   /* background: var(--secondary-color); */
   background-image: linear-gradient(to right, #00b1ff, cyan);
 }
@@ -48,39 +61,47 @@ export default {
   box-shadow: 0px 1px 1px rgba(255, 255, 255, 0.12);
 }
 
-.c-header_title {
-  font-size: 1rem;
-  color: #efefff;
+.c-header__logo {
+  display: flex;
+  align-items: center;
 }
 
-#logo-container,
-.c-header_links {
-  width: 400px;
+.c-header__logo a {
+  display: flex;
+  align-items: center;
+  text-decoration: none;
 }
 
 .c-header img {
   height: 1.5rem;
 }
 
-.c-header_links {
+.c-header__logo h2 {
+  font-size: 1rem;
+  color: #efefff;
+  margin-left: 0.5rem;
+}
+
+
+.c-header__links {
   display: flex;
   align-items: center;
   justify-content: flex-end;
-  gap: .7rem;
+  gap: 0.7rem;
 }
 
-.c-header_links a {
+.c-header__links a {
   color: #babac0;
   font-size: 0.6rem;
   font-weight: 550;
-  padding: 0.3rem .5rem;
+  padding: 0.3rem 0.5rem;
   border-radius: 50px;
-  background-color: rgba(255, 255, 255, .1);
-  transition: .3s;
+  background-color: rgba(255, 255, 255, 0.1);
+  transition: 0.3s;
 }
 
-.c-header_links a.router-link-active,
-.c-header_links a:hover {
+.c-header__links a.router-link-active,
+.c-header__links a:hover {
   color: #4a4a50;
   background-color: var(--details-color);
   text-decoration: none;

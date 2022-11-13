@@ -1,6 +1,6 @@
 <template>
   <div class="c-home">
-    <!-- <h1>Home Page</h1> -->
+    <Loader v-show="activeLoader" />
     <ul class="c-parties__container">
       <Post
         v-for="(party, index) in currentPosts"
@@ -14,7 +14,7 @@
         <a @click.prevent="seeMorePosts" href="#">Mostrar mais festas</a>
       </div>
     </ul>
-    <p class="not-parties" v-show="!parties.length">
+    <p class="not-parties" v-show="!parties.length && !activeLoader">
       Nenhuma festa publicada ainda...
     </p>
   </div>
@@ -22,6 +22,7 @@
 
 <script>
 import Post from "@/components/Post";
+import Loader from "@/components/Loader";
 
 export default {
   name: "Home",
@@ -32,6 +33,7 @@ export default {
         perPage: 4,
       },
       parties: [],
+      activeLoader: true
     };
   },
   computed: {
@@ -66,6 +68,7 @@ export default {
         });
 
         this.parties = res.parties;
+        this.activeLoader = false
       } catch (err) {
         console.log(err);
       }
@@ -79,6 +82,7 @@ export default {
   },
   components: {
     Post,
+    Loader
   },
 };
 </script>

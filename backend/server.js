@@ -35,7 +35,7 @@ app.get("/", (req, res) => {
 app.use("/auth", authRoutes)
 app.use("/user", verifyToken, userRoutes)
 app.use("/party", partyRoutes)
-app.use("/party/comment", verifyToken, commentRoutes)
+app.use("/party/comment", commentRoutes)
 
 
 // Start server

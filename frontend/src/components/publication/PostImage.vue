@@ -2,7 +2,7 @@
   <div
     class="c-post__image"
     :style="
-      party.photos.length ? `background-image: url(${party.photos[0]})` : ''
+      photos.length ? `background-image: url(${photos[0]})` : ''
     "
   ></div>
 </template>
@@ -10,7 +10,7 @@
 <script>
 export default {
   name: "PostImage",
-  props: ["party"]
+  props: ["photos"]
 }
 </script>
 

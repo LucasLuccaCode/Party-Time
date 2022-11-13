@@ -29,7 +29,8 @@ export default {
   methods: {
     async getUserParties() {
       const token = this.$store.getters.token;
-      const req = await fetch(`http://localhost:3000/party/userparties`, {
+      const userId = this.$store.getters.user_id;
+      const req = await fetch(`http://localhost:3000/party/userparties/${userId}`, {
         method: "GET",
         headers: {
           "auth-token": token
