@@ -11,6 +11,14 @@ const routes = [
     }
   },
   {
+    path: "/user/:userId",
+    name: "UserPage",
+    component: () => import('../views/UserPage'),
+    meta: {
+      requireAuth: false
+    }
+  },
+  {
     path: '/register',
     name: 'Register',
     component: () => import('../views/Register.vue'),
@@ -27,7 +35,7 @@ const routes = [
     }
   },
   {
-    path: '/profile/:userId',
+    path: '/profile',
     name: 'Profile',
     component: () => import('../views/Profile.vue'),
     meta: {
@@ -73,8 +81,19 @@ const router = createRouter({
   routes
 })
 
-router.beforeEach((to, from , next) => {
-  if(to.matched.some( record => record.meta.requireAuth) && !store.getters.authenticated)
+router.beforeEach((to, from, next) => {
+  const fullPath = to.fullPath
+  const rootPath = fullPath.split("/")[1]
+  if (rootPath === "user") {
+    const userId = to.params.userId
+    const storeUserId = store.getters.user_id
+    if (userId === storeUserId) return next("/profile")
+  }
+  next()
+})
+
+router.beforeEach((to, from, next) => {
+  if (to.matched.some(record => record.meta.requireAuth) && !store.getters.authenticated)
     return next("/login")
   next()
 })

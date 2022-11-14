@@ -10,7 +10,7 @@
         <p>50 Amigos</p>
       </div>
       <div class="c-profile__info__actions">
-        <a class="bigger-button" href="#" @click.prevent>Editar perfil</a>
+        <a class="bigger-button" href="#" @click.prevent>Enviar mensagem</a>
       </div>
     </div>
     <div class="c-profile__nav">
@@ -36,10 +36,10 @@
 import Publications from "../components/Publications.vue";
 
 export default {
-  name: "Profile",
+  name: "UserPage",
   data() {
     return {
-      userId: this.$store.getters.user_id,
+      userId: this.$route.params.userId,
       urlPhotos: [],
       navView: "posts",
       parties: [],

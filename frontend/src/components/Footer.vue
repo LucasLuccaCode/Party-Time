@@ -12,6 +12,10 @@ export default {
 
 <style scoped>
   .c-footer {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    /* grid-area: footer; */
     text-align: center;
     color: #babac0;
     font-size: .8rem;

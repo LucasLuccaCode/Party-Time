@@ -4,10 +4,11 @@
       <h1>Gerencie seus eventos</h1>
       <router-link class="btn" to="/newparty">Cadastrar Festa</router-link>
     </div>
-    <div class="c-dashboard__table" v-if="parties.length">
+    <Loader v-show="activeLoader" /> 
+    <div class="c-dashboard__table" v-show="parties.length">
       <DataTable :parties="parties" />
     </div>
-    <div class="c-dashboard__empty" v-else>
+    <div class="c-dashboard__empty" v-show="!parties.length && !activeLoader">
       <p>
         Você ainda não tem festas cadastradas,
         <router-link to="/newparty">clique aqui para cadastrar uma</router-link>
@@ -18,12 +19,14 @@
 
 <script>
 import DataTable from "../components/DataTable";
+import Loader from "../components/Loader";
 
 export default {
   name: "Dashboard",
   data() {
     return {
       parties: [],
+      activeLoader: true
     };
   },
   methods: {
@@ -38,6 +41,7 @@ export default {
       });
       const res = await req.json();
       this.parties = res.parties;
+      this.activeLoader = false
     },
   },
   created() {
@@ -45,11 +49,15 @@ export default {
   },
   components: {
     DataTable,
+    Loader
   },
 };
 </script>
 
 <style scoped>
+.c-dashboard {
+  padding: var(--horizontal-margin);
+}
 .c-dashboard__title {
   display: flex;
   align-items: center;

@@ -1,8 +1,7 @@
 <template>
-  <section id="c-container">
+  <section class="c-container">
     <Header />
     <Main />
-    <Footer />
   </section>
 </template>
 
@@ -29,6 +28,7 @@ export default {
   --font-size: 18px;
   --horizontal-margin: 0.8rem;
   --b-radius: 0.3rem;
+  --max-width: 500px;
 }
 
 * {
@@ -46,11 +46,19 @@ html {
   font-family: Helvetica, sans-serif;
 }
 
-#c-container {
-  display: flex;
-  flex-direction: column;
+#app {
   width: 100%;
   height: 100%;
+}
+
+.c-container {
+  display: grid;
+  grid-template-columns: auto;
+  grid-template-rows: auto 1fr;
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
 }
 
 a {
@@ -75,6 +83,25 @@ h1 {
   font-size: 1rem;
   color: #efefff;
   text-align: center;
+}
+
+.bigger-button {
+  display: flex;
+  justify-content: center;
+  border: 2px solid var(--details-color);
+  color: var(--secondary-color);
+  padding: 0.3rem 0.5rem;
+  background: var(--details-color);
+  font-size: 0.7rem;
+  font-weight: bold;
+  border: 2px solid var(--details-color);
+  border-radius: 5rem;
+}
+
+.bigger-button:hover {
+  text-decoration: none;
+  background: transparent;
+  color: var(--details-color);
 }
 
 input,

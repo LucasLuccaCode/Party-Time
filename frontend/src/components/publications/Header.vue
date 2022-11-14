@@ -6,7 +6,7 @@
         :style="`background-image: url(/img/user.png)`"
       >
       </div>
-      <router-link :to="`/profile/${party.user_id}`">{{ party.user_name }} <span>{{treatDates(party.date)}}</span></router-link>
+      <router-link :to="`/user/${party.user_id}`">{{ party.user_name }} <span>{{treatDates(party.date)}}</span></router-link>
       <div class="c-header__options"><span>...</span></div>
     </div>
     <div class="c-header__legend">

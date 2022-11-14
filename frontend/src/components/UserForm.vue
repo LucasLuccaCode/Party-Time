@@ -247,7 +247,8 @@ export default {
 <style scoped>
 .c-user_form {
   --_b-radius: 0.2rem;
-  width: 40%;
+  width: 90%;
+  max-width: var(--max-width);
   padding: 1rem;
   margin: 0 auto;
   margin-top: 1rem;

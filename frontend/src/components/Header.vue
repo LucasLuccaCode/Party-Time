@@ -13,7 +13,7 @@
       >
       <router-link to="/login" v-show="!authenticated">Login</router-link>
       <router-link to="/register" v-show="!authenticated">Register</router-link>
-      <router-link :to="`/profile/${userId}`" v-show="authenticated"
+      <router-link to="/profile" v-show="authenticated"
         >Profile</router-link
       >
       <a @click.prevent="logout" v-show="authenticated">Logout</a>
@@ -24,11 +24,6 @@
 <script>
 export default {
   name: "Navbar",
-  data() {
-    return {
-      userId: this.$store.getters.user_id || null,
-    };
-  },
   methods: {
     logout() {
       this.$store.commit("logout");
@@ -39,14 +34,19 @@ export default {
     authenticated() {
       return this.$store.getters.authenticated;
     },
+    userId(){
+      return this.$store.getters.user_id
+    }
   },
 };
 </script>
 
 <style scoped>
 .c-header {
+  /* grid-area: header; */
   position: sticky;
   top: 0;
+  /* height: 50px; */
   /* background: var(--secondary-color); */
   background-image: linear-gradient(to right, #00b1ff, cyan);
 }

@@ -13,10 +13,10 @@
 </template>
 
 <script>
-import Header from "./publication/Header";
-import PostImage from "./publication/PostImage";
-import Body from "./publication/Body";
-import Comments from "./publication/Comments";
+import Header from "./Header";
+import PostImage from "./PostImage";
+import Body from "./Body";
+import Comments from "./Comments";
 
 export default {
   name: "Post",
@@ -179,14 +179,12 @@ export default {
 <style scoped>
 .c-post {
   --_padding-h: 0.8rem;
-  width: 80%;
+  width: 100%;
+  max-width: var(--max-width);
   margin: 0 auto;
-  max-width: 460px;
-  margin-top: 0.2rem;
-  margin-bottom: 0.8rem;
-  background: rgba(255, 255, 255, 0.08);
   border-radius: 12px;
+  background: rgba(255, 255, 255, 0.08);
   box-shadow: 0 2px 2px 1px rgba(0, 0, 0, 0.05);
-  list-style: none;
+  /* box-shadow: 0 3px 6px 0 rgb(0 0 0 / 20%); */
 }
 </style>

@@ -20,7 +20,7 @@
           ></div>
           <div class="c-comment__card__body">
             <div class="c-comment__card__content">
-              <router-link :to="`/profile/${comment.user_id}`">{{
+              <router-link :to="`/user/${comment.user_id}`">{{
                 comment.username
               }}</router-link>
               <p>{{ comment.comment }}</p>
