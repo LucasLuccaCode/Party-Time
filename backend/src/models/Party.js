@@ -6,10 +6,6 @@ const mongoose = require("mongoose")
 const Comment = require("./Comment")
 
 const partySchema = new mongoose.Schema({
-  title: {
-    type: String,
-    required: true
-  },
   description: {
     type: String,
     required: true

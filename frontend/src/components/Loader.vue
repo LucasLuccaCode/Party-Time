@@ -23,7 +23,7 @@ export default {
   width: .7rem;
   height: .8rem;
   border-radius: 50px;
-  border: 3px solid rgba(255, 255, 255, 0.2);
+  border: 3px solid rgba(0, 177, 255, .4);
   border-top: 3px solid var(--details-color);
   animation: loading 1s ease infinite;
 }

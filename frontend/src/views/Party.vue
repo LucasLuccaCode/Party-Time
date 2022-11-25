@@ -56,7 +56,7 @@ export default {
       const token = this.$store.getters.token;
 
       try {
-        const req = await fetch(`http://localhost:3000/party/${id}`, {
+        const req = await fetch(`${this.SERVER_BASE_URL}/party/${id}`, {
           method: "GET",
           headers: {
             "Content-type": "application/json",
@@ -71,7 +71,7 @@ export default {
           this.party.party_date
         ).toLocaleDateString();
         this.party.photos = this.party.photos.map(
-          (filename) => `http://localhost:3000/photos/${filename}`
+          (filename) => `${this.SERVER_BASE_URL}/photos/${filename}`
         );
       } catch (err) {
         console.log(err);

@@ -1,24 +1,27 @@
 <template>
   <div class="c-home">
-    <Publications :parties="parties" />
+    <Loader v-if="activeLoader" />
+    <Publications v-else :parties="parties" />
   </div>
 </template>
 
 <script>
 import Publications from "@/components/Publications";
+import Loader from "@/components/Loader.vue";
 
 export default {
   name: "Home",
   data() {
     return {
       parties: [],
+      activeLoader: true
     };
   },
   methods: {
     async getParties() {
       try {
         const token = this.$store.getters.token;
-        const req = await fetch(`http://localhost:3000/party/all/`, {
+        const req = await fetch(`${this.SERVER_BASE_URL}/party/all/`, {
           method: "GET",
           headers: {
             "auth-token": token,
@@ -26,30 +29,22 @@ export default {
         });
         const res = await req.json();
 
-        res.parties.forEach((party) => {
-          if (party.party_date) {
-            party.party_date = new Date(party.party_date).toLocaleDateString();
-          }
-
-          if (party.photos.length) {
-            party.photos = party.photos.map(
-              (filename) => `http://localhost:3000/photos/${filename}`
-            );
-          }
-        });
-
         if (!res.error) this.parties = res.parties;
         this.activeLoader = false;
       } catch (err) {
         console.log(err);
       }
     },
+    updateParties(){
+      this.getParties()
+    }
   },
   created(){
     this.getParties()
   },
   components: {
     Publications,
+    Loader
   },
 };
 </script>
@@ -58,6 +53,7 @@ export default {
 .c-home {
   width: 100%;
   margin: 0 auto;
+  max-width: 500px;
   padding: var(--horizontal-margin);
 }
 </style>

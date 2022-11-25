@@ -6,7 +6,7 @@
       <input type="hidden" name="id" id="id" v-model="id" />
       <div class="c-user_form__input" v-show="page !== 'login'">
         <label for="name">Nome: </label>
-        <input type="text" name="name" id="name" v-model="name" />
+        <input v-focus type="text" name="name" id="name" v-model="name" />
       </div>
       <div class="c-user_form__input">
         <label for="email">E-mail: </label>
@@ -18,6 +18,7 @@
           type="password"
           name="password"
           id="password"
+          :placeholder="page == 'profile' ? '*********' : ''"
           v-model="password"
         />
       </div>
@@ -27,6 +28,7 @@
           type="password"
           name="confirm_password"
           id="confirm_password"
+          :placeholder="page == 'profile' ? '*********' : ''"
           v-model="confirm_password"
         />
       </div>
@@ -39,7 +41,15 @@
 import ButtonSubmit from "./form/ButtonSubmit";
 import Message from "./Message";
 
+const focus = {
+  mounted: (el) => el.focus()
+}
+
 export default {
+  directives: {
+    // enables v-focus in template
+    focus
+  },
   data() {
     return {
       id: this.user._id || null,
@@ -72,7 +82,7 @@ export default {
 
       const dataJson = JSON.stringify(this.formData);
       try {
-        const req = await fetch("http://localhost:3000/auth/register", {
+        const req = await fetch(`${this.SERVER_BASE_URL}/auth/register`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -98,7 +108,7 @@ export default {
         });
 
         // Redirect to dashboard page
-        this.$router.push("/dashboard");
+        this.$router.push("/");
       } catch (err) {
         console.log(err);
         this.msg = "Erro no servidor, tente mais tarde!";
@@ -117,7 +127,7 @@ export default {
 
       const dataJson = JSON.stringify(this.formData);
       try {
-        const req = await fetch("http://localhost:3000/auth/login", {
+        const req = await fetch(`${this.SERVER_BASE_URL}/auth/login`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -143,7 +153,7 @@ export default {
         });
 
         // Redirect to dashboard page
-        this.$router.push("/dashboard");
+        this.$router.push("/");
       } catch (err) {
         console.log(err);
         this.msg = "Erro no servidor, tente mais tarde!";
@@ -164,7 +174,7 @@ export default {
 
       const token = this.$store.getters.token;
       try {
-        const req = await fetch("http://localhost:3000/user", {
+        const req = await fetch(`${this.SERVER_BASE_URL}/user`, {
           method: "PATCH",
           headers: {
             "Content-type": "application/json",
@@ -279,6 +289,10 @@ export default {
 
 .c-user_form input:focus {
   border: 2px solid var(--details-color);
+}
+
+.c-user_form input::placeholder {
+  color: #aaaab0;
 }
 
 .c-user_form button {

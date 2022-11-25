@@ -1,7 +1,7 @@
 <template>
   <div class="c-comments">
     <div class="c-comments__content">
-      <ul v-if="comments.length">
+      <ul v-if="comments.length" ref="c_comments">
         <div
           class="c-comments__more_comments"
           v-show="currentsComment.length < comments.length"
@@ -9,46 +9,14 @@
           <a @click.prevent="seeMoreComments"> Ver comentários anteriores</a>
           <p>{{ currentsComment.length }} / {{ comments.length }}</p>
         </div>
-        <li
-          class="c-comment__card"
-          v-for="(comment, index) in currentsComment"
-          :key="index"
-        >
-          <div
-            class="c-comment__card__profile"
-            :style="`background-image: url(/img/user_default.png)`"
-          ></div>
-          <div class="c-comment__card__body">
-            <div class="c-comment__card__content">
-              <router-link :to="`/user/${comment.user_id}`">{{
-                comment.username
-              }}</router-link>
-              <p>{{ comment.comment }}</p>
-            </div>
-            <div
-              class="c-comment__card__actions"
-              :class="{ hidden: !authenticated }"
-            >
-              <a href="#" @click.prevent="handleLikeComment(comment._id)"
-                >Curtir</a
-              >
-              <a
-                href="#"
-                @click.prevent="handleEditComment(comment._id)"
-                v-show="user_id == comment.user_id"
-                >Editar</a
-              >
-              <a
-                href="#"
-                v-show="user_id == comment.user_id || user_id == partyUserId"
-                @click.prevent="handleDeleteComment(comment._id)"
-              >
-                Excluir
-              </a>
-              <span>{{ this.$parent.formatDate(comment.date) }}</span>
-            </div>
-          </div>
-        </li>
+        <CommentCard
+          v-for="comment in currentsComment"
+          :key="comment._id"
+          :comment="comment"
+          :user_id="user_id"
+          :partyUserId="partyUserId"
+          :authenticated="authenticated"
+        />
       </ul>
       <Loader v-show="showLoader" v-else />
     </div>
@@ -69,7 +37,6 @@
             name="comment"
             ref="input_comment"
             v-model="comment"
-            id="comment"
             placeholder="Escreva um comentário"
           />
         </div>
@@ -80,6 +47,7 @@
 
 <script>
 import Loader from "../Loader.vue";
+import CommentCard from "./CommentCard.vue";
 
 export default {
   name: "Comment",
@@ -100,7 +68,17 @@ export default {
       return this.comments.slice(-page);
     },
   },
+  watch: {
+    comments(newComments, oldComments) {
+      const totalNewComments = newComments.length;
+      const totalOldComments = oldComments.length;
+      if (totalNewComments > totalOldComments) this.scrollBottom();
+    },
+  },
   methods: {
+    scrollBottom() {
+      this.$refs.c_comments && this.$refs.c_comments.scroll(0, 100000000);
+    },
     handleDeleteComment(commentId) {
       this.$parent.deleteComment(commentId);
     },
@@ -120,7 +98,6 @@ export default {
       );
 
       this.commentIdEditing = commentId;
-      console.log(this.commentIdEditing);
       this.comment = comment;
       this.commentTextEditing = comment;
     },
@@ -147,6 +124,7 @@ export default {
   },
   components: {
     Loader,
+    CommentCard
   },
 };
 </script>
@@ -164,8 +142,8 @@ export default {
 
 .c-comments__content ul {
   display: flex;
-  width: 100%;
   flex-direction: column;
+  width: 100%;
   gap: 0.5rem;
   max-height: 150px;
   padding: 0 var(--_padding-h);
@@ -196,77 +174,8 @@ export default {
   color: #babac0;
 }
 
-.c-comment__card {
-  display: flex;
-  width: 100%;
-  border-radius: 3px;
-  font-size: 0.8rem;
-  color: #efefff;
-}
 
-.c-comment__card__profile {
-  width: 1.2rem;
-  height: 1.2rem;
-  min-width: 1.2rem;
-  min-height: 1.2rem;
-  /* background: var(--primary-color); */
-  background-position: center;
-  background-size: cover;
-  border-radius: 50px;
-}
-
-.c-comment__card__body {
-  margin-left: 0.5rem;
-}
-
-.c-comment__card__content {
-  display: flex;
-  flex-direction: column;
-  background: rgba(255, 255, 255, 0.1);
-  border-radius: 8px;
-  padding: 0.5rem;
-}
-
-.c-comment__card__content a {
-  font-size: 0.65rem;
-  color: #efefff;
-  font-weight: bold;
-}
-
-.c-comment__card__content p {
-  font-size: 0.6rem;
-  color: #efefff;
-  margin-top: 2px;
-  /* font-weight: bold; */
-  line-height: 0.75rem;
-}
-
-.c-comment__card__actions {
-  display: flex;
-  align-items: center;
-  gap: 0.7rem;
-  margin-top: 0.4rem;
-}
-
-.hidden {
-  pointer-events: none;
-  opacity: 0.3;
-}
-
-.c-comment__card__actions a {
-  color: #efefff;
-  font-size: 0.65rem;
-  /* text-decoration: none; */
-}
-
-.c-comment__card__actions span {
-  color: #aaaab0;
-  font-size: 0.65rem;
-}
-
-.c-comment__card__actions a:hover {
-  text-decoration: underline;
-}
+/* Form Container */
 
 .c-comments__form__container {
   width: 100%;
@@ -321,9 +230,7 @@ export default {
   display: flex;
   align-items: center;
   width: 100%;
-  padding: 0 0.4rem;
-  padding-top: 0.4rem;
-  padding-bottom: 0.6rem;
+  padding: 0.8rem var(--horizontal-margin);
 }
 
 .c-comments__form__profile {

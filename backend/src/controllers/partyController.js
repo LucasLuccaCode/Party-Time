@@ -1,23 +1,26 @@
+const path = require("path")
+const fs = require("fs")
+
+
 const Party = require("../models/Party")
 const getUserByToken = require("../helpers/getUserByToken")
 
 exports.register = async (req, res) => {
-  const { title, description, party_date, privacy } = req.body
+  const { description, party_date, privacy } = req.body
   let photos = req.files?.photos ? req.files.photos : []
 
   if (photos.length) photos = photos.map(file => file.filename)
 
   // Check empty fields
-  if (title === "null" || description === "null" || party_date === "null")
+  if (description === "null" || party_date === "null")
     return res.status(400)
-      .json({ error: "Preencha pelo menos os campos: titulo, descrição e data." })
+      .json({ error: "Preencha pelo menos os campos: Descrição e Data." })
 
   try {
     const token = req.header("auth-token")
     const user = await getUserByToken(token)
 
     const data = {
-      title,
       description,
       party_date,
       photos,
@@ -31,6 +34,7 @@ exports.register = async (req, res) => {
       .then(party => {
         res.json({
           error: null,
+          message: "Festa publicada com sucesso.",
           party
         })
       })
@@ -154,17 +158,16 @@ exports.delete = async (req, res) => {
 }
 
 exports.update = async (req, res) => {
-  const { title, description, party_date, privacy, party_id, user_id: reqId } = req.body
+  const { description, party_date, privacy, party_id, user_id: reqId, photosRemoved } = req.body
 
   let photos = req.files?.photos ? req.files.photos : []
 
   // Check empty fields
-  if (title === "null" || description === "null" || party_date === "null")
+  if (description === "null" || party_date === "null")
     return res.status(400)
-      .json({ error: "Preencha pelo menos os campos: titulo, descrição e data." })
+      .json({ error: "Preencha pelo menos os campos: Descrição e Data." })
 
   const updateData = {
-    title,
     description,
     party_date,
     privacy
@@ -185,7 +188,35 @@ exports.update = async (req, res) => {
       { $set: updateData },
       { new: true }
     )
-      .then(party => {
+      .then(async party => {
+
+        if (photosRemoved) {
+          try {
+            const photosDataType = typeof photosRemoved
+            const photosToRemove = photosDataType == "object" ? photosRemoved : [photosRemoved]
+
+            // Delete party images 
+            photosToRemove.forEach(filename => 
+              fs.unlinkSync(path.resolve("tmp", "uploads", filename)))
+
+
+            await Party.findOneAndUpdate(
+              { _id: party_id, user_id },
+              {
+                $pull: {
+                  photos: {
+                    $in: photosToRemove
+                  }
+                }
+              },
+              { new: true }
+            )
+          } catch (err) {
+            console.log(err)
+          }
+
+        }
+
         res.json({
           error: null,
           msg: "Festa atualizada com sucesso!",

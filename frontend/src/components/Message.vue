@@ -17,7 +17,7 @@
   }
 
   .c-message p {
-    max-width: 50%;
+    max-width: 95%;
     margin: .5rem auto;
     padding: .3rem;
     font-size: .8rem;

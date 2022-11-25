@@ -10,7 +10,12 @@
         <p>50 Amigos</p>
       </div>
       <div class="c-profile__info__actions">
-        <a class="bigger-button" href="#" @click.prevent>Editar perfil</a>
+        <a
+          class="bigger-button"
+          href="#"
+          @click.prevent="showNavigation = 'edit'"
+          >Editar perfil</a
+        >
       </div>
     </div>
     <div class="c-profile__nav">
@@ -20,78 +25,42 @@
         <li @click="handleAbout">Sobre</li>
       </ul>
     </div>
-    <Publications :parties="parties" v-show="navView == 'posts'" />
-    <ul class="c-gallery" v-show="navView == 'photos'">
-      <li v-for="(url, index) in urlPhotos" :key="index">
-        <img :src="`${url}`" alt="" />
-      </li>
-    </ul>
-    <ul class="c-about" v-show="navView == 'about'">
-      <p>Mais informações...</p>
-    </ul>
+    <Loader v-if="activeLoader" />
+    <Publications
+      :parties="parties"
+      :activeLoader="activeLoader"
+      v-if="showNavigation === 'posts'"
+    />
+    <NavigationGallery
+      :urlPhotos="urlPhotos"
+      v-else-if="showNavigation === 'photos'"
+    />
+    <NavigationAbout v-else-if="showNavigation === 'about'" />
+    <NavigationEditUser :user="user" v-else-if="showNavigation == 'edit'" />
   </div>
 </template>
 
 <script>
-import Publications from "../components/Publications.vue";
+import Publications from "@/components/Publications.vue";
+import GetUserMixin from "../components/mixins/GetUserMixin.vue";
+import GetUserPartiesMixin from "../components/mixins/GetUserPartiesMixin.vue";
+import Loader from "@/components/Loader.vue";
+import NavigationGallery from "@/components/profile/NavigationGallery.vue";
+import NavigationAbout from "@/components/profile/NavigationAbout.vue";
+import NavigationEditUser from "@/components/profile/NavigationEditUser.vue";
 
 export default {
   name: "Profile",
   data() {
     return {
-      userId: this.$store.getters.user_id,
       urlPhotos: [],
-      navView: "posts",
+      showNavigation: "posts",
       parties: [],
       user: [],
+      activeLoader: true,
     };
   },
   methods: {
-    async getUser() {
-      const token = this.$store.getters.token;
-
-      const req = await fetch(`http://localhost:3000/user/${this.userId}`, {
-        method: "GET",
-        headers: {
-          "Content-type": "application/json",
-          "auth-token": token,
-        },
-      });
-      const res = await req.json();
-      this.user = res.user;
-    },
-    async getUserParties() {
-      try {
-        const token = this.$store.getters.token;
-        const req = await fetch(
-          `http://localhost:3000/party/userparties/${this.userId}`,
-          {
-            method: "GET",
-            headers: {
-              "auth-token": token,
-            },
-          }
-        );
-        const res = await req.json();
-
-        res.parties.forEach((party) => {
-          if (party.party_date) {
-            party.party_date = new Date(party.party_date).toLocaleDateString();
-          }
-
-          if (party.photos.length) {
-            party.photos = party.photos.map(
-              (filename) => `http://localhost:3000/photos/${filename}`
-            );
-          }
-        });
-
-        this.parties = res.parties;
-        this.activeLoader = false;
-      } catch (err) {
-        console.log(err);
-      }
-    },
     seeMorePosts() {
       const { page, perPage } = this.statePosts;
       const totalPosts = this.parties.length;
@@ -113,32 +82,41 @@ export default {
     },
     handlePosts() {
       this.activeLoader = true;
-      this.navView = "posts";
+      this.showNavigation = "posts";
       this.activeLoader = false;
     },
     handlePhotos() {
       this.activeLoader = true;
       this.splitPhotos();
-      this.navView = "photos";
+      this.showNavigation = "photos";
       this.activeLoader = false;
     },
     handleAbout() {
       this.activeLoader = true;
-      this.navView = "about";
+      this.showNavigation = "about";
       this.activeLoader = false;
     },
+    updateParties(userId){
+      this.getUserParties(userId)
+    }
   },
   computed: {
     currentPosts() {
       return this.parties.slice(0, this.statePosts.page);
     },
   },
+  mixins: [GetUserMixin, GetUserPartiesMixin],
   created() {
-    this.getUser();
-    this.getUserParties();
+    const userId = this.$store.getters.user_id;
+    this.getUser(userId);
+    this.getUserParties(userId);
   },
   components: {
     Publications,
+    Loader,
+    NavigationGallery,
+    NavigationAbout,
+    NavigationEditUser,
   },
 };
 </script>
@@ -155,7 +133,7 @@ export default {
 .c-profile__cover {
   background: var(--secondary-color);
   width: 100%;
-  height: 150px;
+  height: 60px;
   border-bottom-left-radius: 0.5rem;
   border-bottom-right-radius: 0.5rem;
 }
@@ -212,11 +190,12 @@ export default {
 
 .c-profile__nav {
   position: sticky;
-  top: 0px;
+  top: 1px;
   background: var(--primary-color);
   /* margin: 0 var(--horizontal-margin); */
   border-top: 2px solid rgba(255, 255, 255, 0.1);
   border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+  z-index: 100;
 }
 
 .c-profile__nav ul {
@@ -247,22 +226,5 @@ export default {
 
 .c-profile__nav ul {
   display: flex;
-}
-
-/* GALLERY */
-
-.c-gallery {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  width: 95%;
-  gap: 0.5rem;
-  margin: var(--horizontal-margin) auto;
-  padding: var(--horizontal-margin);
-  background: rgba(255, 255, 255, 0.08);
-  border-radius: 12px;
-}
-
-.c-gallery li img {
-  max-width: 100%;
 }
 </style>

@@ -1,12 +1,14 @@
 <template>
   <div class="c-publications">
-    <Loader v-show="activeLoader" />
+    <PublicationForm
+      v-if="!hideCardForm"
+      :party="party"
+      :page="page"
+      :enableContainer="enableContainerEditPost"
+      :key="newPostController"
+    />
     <ul class="c-publications__content">
-      <Post
-        v-for="(party, index) in currentParties"
-        :party="party"
-        :key="index"
-      />
+      <Post v-for="party in currentParties" :party="party" :key="party._id" />
       <div
         class="c-publications__more__posts"
         v-show="currentParties.length < parties.length"
@@ -17,14 +19,14 @@
       </div>
     </ul>
     <p class="not-parties" v-show="!parties.length && !activeLoader">
-      Nenhuma festa encontrada...
+      Nenhuma publicação encontrada...
     </p>
   </div>
 </template>
 
 <script>
 import Post from "./publications/Post";
-import Loader from "./Loader";
+import PublicationForm from "./publications/PublicationForm";
 
 export default {
   name: "Publications",
@@ -34,22 +36,38 @@ export default {
         page: 4,
         perPage: 4,
       },
-      activeLoader: true,
+      userId: this.$store.getters.user_id,
+      page: "newPost",
+      party: {},
+      newPostController: 0,
+      enableContainerEditPost: false,
     };
   },
-  props: ["parties"],
-  watch: {
-    parties() {
-      this.activeLoader = false;
-    },
+  props: {
+    parties: Array,
+    activeLoader: Boolean,
+    hideCardForm: {
+      type: Boolean,
+      default: false
+    }
   },
   methods: {
+    editPublication(partyId) {
+      this.party = this.parties.find((party) => party._id === partyId)
+      this.page = "editPost"
+      this.newPostController++
+      this.enableContainerEditPost = true;
+    },
     seeMorePosts() {
       const { page, perPage } = this.statePosts;
       const totalPosts = this.parties.length;
       const currentPost = page + perPage;
       this.statePosts.page =
         currentPost > totalPosts ? totalPosts : currentPost;
+    },
+    updateParties() {
+      const userId = this.$store.getters.user_id;
+      this.$parent.updateParties(userId);
     },
   },
   computed: {
@@ -59,25 +77,19 @@ export default {
   },
   components: {
     Post,
-    Loader,
+    PublicationForm,
   },
 };
 </script>
 
 <style scoped>
 .c-publications {
-  padding: var(--horizontal-margin);
+  width: 100%;
+  padding: 0 2%;
 }
 
 .c-publications__content {
   display: grid;
-  gap: 0.8rem;
-}
-
-.not-parties {
-  font-size: 0.9rem;
-  color: #aaaab0;
-  text-align: center;
 }
 
 .c-publications__more__posts {
@@ -85,5 +97,6 @@ export default {
   justify-content: center;
   width: 40%;
   margin: 0 auto;
+  margin-top: 1rem;
 }
 </style>

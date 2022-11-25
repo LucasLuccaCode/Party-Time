@@ -16,7 +16,7 @@
           <div class="c-data__body__id">{{ index + 1 }}</div>
           <div class="c-data__body__title">
             <router-link :to="`/party/${party._id}`">{{
-              party.title
+              party.description
             }}</router-link>
           </div>
           <div class="c-data__body__actions">
@@ -56,10 +56,10 @@ export default {
     Message,
   },
   methods: {
-    async remove(id) {
+    async remove(partyId) {
       try {
         const token = this.$store.getters.token
-        const req = await fetch(`http://localhost:3000/party/${id}`, {
+        const req = await fetch(`${this.SERVER_BASE_URL}/party/${partyId}`, {
           method: "DELETE",
           headers: {
             "Content-type": "application/json",

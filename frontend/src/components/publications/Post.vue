@@ -3,7 +3,8 @@
     <Header :party="party" />
     <PostImage :photos="party.photos" v-show="party.photos.length" />
     <Body :party="party" :comments="comments" />
-    <Comments
+    <CommentsContainer
+      v-show="showComments"
       :comments="comments"
       :partyId="partyId"
       :partyUserId="party.user_id"
@@ -11,12 +12,11 @@
     />
   </li>
 </template>
-
 <script>
 import Header from "./Header";
 import PostImage from "./PostImage";
 import Body from "./Body";
-import Comments from "./Comments";
+import CommentsContainer from "./CommentsContainer";
 
 export default {
   name: "Post",
@@ -27,7 +27,8 @@ export default {
         page: 3,
         perPage: 3,
       },
-      comments: []
+      comments: [],
+      showComments: false
     };
   },
   props: ["party"],
@@ -39,7 +40,7 @@ export default {
       const token = this.$store.getters.token;
       try {
         const req = await fetch(
-          `http://localhost:3000/party/likeparty/${partyId}`,
+          `${this.SERVER_BASE_URL}/party/likeparty/${partyId}`,
           {
             method: "POST",
             headers: {
@@ -57,7 +58,7 @@ export default {
       const token = this.$store.getters.token;
 
       try {
-        const req = await fetch(`http://localhost:3000/party/comment/${partyId}`, {
+        const req = await fetch(`${this.SERVER_BASE_URL}/party/comment/${partyId}`, {
           method: "GET",
           headers: {
             "auth-token": token,
@@ -79,7 +80,7 @@ export default {
       const commentJson = JSON.stringify(commentData);
 
       try {
-        const req = await fetch(`http://localhost:3000/party/comment`, {
+        const req = await fetch(`${this.SERVER_BASE_URL}/party/comment`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -98,7 +99,7 @@ export default {
 
       try {
         const req = await fetch(
-          `http://localhost:3000/party/comment/${this.partyId}/${commentId}`,
+          `${this.SERVER_BASE_URL}/party/comment/${this.partyId}/${commentId}`,
           {
             method: "DELETE",
             headers: {
@@ -125,7 +126,7 @@ export default {
 
       try {
         const req = await fetch(
-          `http://localhost:3000/party/comment`,
+          `${this.SERVER_BASE_URL}/party/comment`,
           {
             method: "PATCH",
             headers: {
@@ -142,36 +143,18 @@ export default {
         console.log(err);
       }
     },
-    formatDate(dateMs) {
-      const currentDateMs = Date.now();
-      const date = new Date(currentDateMs - Number(dateMs));
-
-      // Format date
-      const [y, m, d] = date.toISOString().substring(0, 10).split("-");
-      let years = Math.abs(y);
-      let months = Math.abs(m);
-      let days = Math.abs(d);
-
-      if (years > 1970) return date.toISOString().substring(0, 10);
-      if (--months) return months + " month";
-      if (--days) return days + " d";
-
-      // Format hours
-      const [h, min, sec] = date.toISOString().substring(11, 19).split(":");
-      const hours = Math.abs(h);
-      const minutes = Math.abs(min);
-      const seconds = Math.abs(sec);
-
-      if (hours) return hours + " h";
-      if (minutes) return minutes + " min";
-      if (seconds) return seconds + " s";
+    updateParties(){
+      this.$parent.updateParties()
     },
+    editPublication(partyId){
+      this.$parent.editPublication(partyId)
+    }
   },
   components: {
     Header,
     PostImage,
     Body,
-    Comments,
+    CommentsContainer,
   },
 };
 </script>
@@ -179,12 +162,11 @@ export default {
 <style scoped>
 .c-post {
   --_padding-h: 0.8rem;
+  position: relative;
   width: 100%;
-  max-width: var(--max-width);
-  margin: 0 auto;
+  margin-top: 1rem;
   border-radius: 12px;
   background: rgba(255, 255, 255, 0.08);
   box-shadow: 0 2px 2px 1px rgba(0, 0, 0, 0.05);
-  /* box-shadow: 0 3px 6px 0 rgb(0 0 0 / 20%); */
 }
 </style>

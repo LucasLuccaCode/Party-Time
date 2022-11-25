@@ -43,7 +43,7 @@ html {
   height: 100%;
   background: var(--primary-color);
   font-size: var(--font-size);
-  font-family: Helvetica, sans-serif;
+  font-family: sans-serif;
 }
 
 #app {
@@ -89,7 +89,7 @@ h1 {
   display: flex;
   justify-content: center;
   border: 2px solid var(--details-color);
-  color: var(--secondary-color);
+  color: rgba(0 0 0 / 50%);
   padding: 0.3rem 0.5rem;
   background: var(--details-color);
   font-size: 0.7rem;
@@ -102,6 +102,13 @@ h1 {
   text-decoration: none;
   background: transparent;
   color: var(--details-color);
+}
+
+.not-parties {
+  font-size: 0.9rem;
+  color: #aaaab0;
+  margin-top: 1rem;
+  text-align: center;
 }
 
 input,

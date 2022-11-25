@@ -43,30 +43,6 @@ const routes = [
     }
   },
   {
-    path: "/dashboard",
-    name: "Dashboard",
-    component: () => import("../views/Dashboard.vue"),
-    meta: {
-      requireAuth: true
-    }
-  },
-  {
-    path: "/newparty",
-    name: "NewParty",
-    component: () => import("../views/NewParty.vue"),
-    meta: {
-      requireAuth: true
-    }
-  },
-  {
-    path: "/editparty/:id",
-    name: "EditParty",
-    component: () => import("../views/EditParty.vue"),
-    meta: {
-      requireAuth: true
-    }
-  },
-  {
     path: "/party/:id",
     name: "Party",
     component: () => import("../views/Party.vue"),

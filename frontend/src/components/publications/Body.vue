@@ -1,25 +1,32 @@
 <template>
   <div class="c-post__body">
-    <a
-      class="c-post__body__like"
-      href="#"
-      @click.prevent="this.$parent.likesPost(party._id)"
-    >
-      <img src="/img/like.png" alt="Like" />
-      <span class="total-likes">{{ party.likes.length }}</span>
-      <p href="#">{{ statusPostLike }}</p>
+    <a @click.prevent="this.$parent.likesPost(party._id)">
+      <i :class="[`ph-heart-${heartIconType}`, { 'bold': heartIconType == 'fill'}]"></i>
+      <span>{{ party.likes.length }}</span>
     </a>
-    <a class="total-comments">{{ comments.length }} comments</a>
+    <a @click.prevent="this.$parent.showComments = true">
+      <i class="ph-chat-circle-dots-bold"></i>
+      <span>{{ comments.length }}</span>
+    </a>
+    <a @click.prevent="this.$parent.showComments = true">
+      <i class="ph-share-network-bold"></i>
+      <span>{{ shares }}</span>
+    </a>
   </div>
 </template>
 
 <script>
 export default {
   name: "Body",
+  data(){
+    return {
+      shares: 1
+    }
+  },
   computed: {
-    statusPostLike() {
+    heartIconType() {
       const user_id = this.$store.getters.user_id;
-      return this.party.likes.includes(user_id) ? "Deslike" : "Like";
+      return this.party.likes.includes(user_id) ? "fill" : "bold";
     },
   },
   props: ["party", "comments"],
@@ -29,52 +36,40 @@ export default {
 <style scoped>
 .c-post__body {
   display: flex;
-  justify-content: space-between;
+  /* justify-content: space-between; */
   align-items: center;
-  gap: 0.5rem;
+  gap: 1rem;
   flex-wrap: wrap;
   width: 100%;
   padding: 0.5rem var(--_padding-h);
-  border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+  border-top: 2px solid rgba(255, 255, 255, 0.05);
+  border-bottom: 2px solid rgba(255, 255, 255, 0.05);
 }
 
-.c-post__body__like {
+.c-post__body a {
   display: flex;
   align-items: center;
-  border: 2px solid rgba(255, 255, 255, .1);
+  gap: .3rem;
   border-radius: 50px;
   padding: .3rem;
   font-size: 0.6rem;
   color: #aaaab0;
   font-weight: bold;
   text-decoration: none;
-}
-
-.c-post__body__like:hover {
   background: rgba(255, 255, 255, .05);
+  /* border: 1px solid rgba(255, 255, 255, .1); */
 }
 
-.c-post__body__like img {
-  width: 0.9rem;
-  height: 0.9rem;
+.c-post__body a:hover {
+  background: rgba(255, 255, 255, .1);
 }
 
-.c-post__body__like span {
-  margin-left: 0.3rem;
+.c-post__body i {
+  font-size: .7rem;
 }
 
-.c-post__body__like p {
-  position: relative;
-  display: flex;
-  align-items: center;
-  margin-left: 0.3rem;
-  border-left: 2px solid rgba(255, 255, 255, .1);
-  padding-left: 0.3rem;
+.c-post__body i.bold {
+  color: var(--details-color);
 }
 
-.c-post__body .total-comments {
-  cursor: pointer;
-  font-size: 0.75rem;
-  color: #aaaab0;
-}
 </style>
